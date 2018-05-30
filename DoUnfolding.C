@@ -45,24 +45,24 @@ class StJetFolder;
 
 
 // input and output files
-const TString  pFile("prior.forUnfolding.d28m5y2018.root");
-const TString  sFile("smeared.forUnfolding.d28m5y2018.root");
-const TString  mFile("measured.forUnfolding.d28m5y2018.root");
-const TString  eFile("efficiency.forUnfolding.d28m5y2018.root");
-const TString  rFile("response.forUnfolding.d28m5y2018.root");
-const TString  oFile("pp200r9embed.pTcorrPi0.et9vz55.r03a02rm1chrg.dr03q15");
+const TString  pFile("input/pp200r9embed.unfoldingVariableBins.et9vz55.r03a02rm1chrg.dr03q15.root");
+const TString  sFile("input/pp200r9embed.unfoldingVariableBins.et9vz55.r03a02rm1chrg.dr03q15.root");
+const TString  mFile("input/pp200r9embed.unfoldingVariableBins.et9vz55.r03a02rm1chrg.dr03q15.root");
+const TString  eFile("input/pp200r9embed.unfoldingVariableBins.et9vz55.r03a02rm1chrg.dr03q15.root");
+const TString  rFile("input/pp200r9embed.unfoldingVariableBins.et9vz55.r03a02rm1chrg.dr03q15.root");
+const TString  oFile("pp200r9embed.closureTestVariableBinsRFFwFF.et9vz55.r03a02rm1chrg.dr03q15");
 // input namecycles
-const TString  pName("hSumParAll_Uniform");
-const TString  sName("hSumDetAll_Uniform");
-const TString  mName("hJetPtCorrP_Uniform");
-const TString  eName("hEfficiencyAll_Uniform");
-const TString  rName("hResponseAll_Uniform");
+const TString  pName("hSumParRFF");
+const TString  sName("hSumDetRFF");
+const TString  mName("hSumDetRFF");
+const TString  eName("hEfficiencyFF");
+const TString  rName("hResponseFF");
 
 // unfolding parameters (to loop over)
-const Int_t nM  = 1;
-const Int_t M[] = {2};
-const Int_t nK  = 10;
-const Int_t K[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+const Int_t nM  = 2;
+const Int_t M[] = {1, 2};
+const Int_t nK  = 40;
+const Int_t K[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40};
 // prior parameters (to loop over)
 const Int_t    P   = 0;
 const Int_t    nN  = 1;
@@ -104,6 +104,23 @@ void DoUnfolding() {
 
   TDatime start;
   cout << "\nStarting folding: " << start.AsString() << "\n" << endl;
+
+  // for recording chi2
+  TString sBay("hBayes");
+  TString sSVD("hSVD");
+  TString sChiX("k_{reg}");
+  TString sChiY("#chi^{2}(backfold, measured)");
+  TString sChi2(oFile);
+  sChi2 += ".performance.root";
+
+  TFile *fChi2 = new TFile(sChi2.Data(), "recreate");
+  TH1D  *hBay  = new TH1D(sBay.Data(), "Bayesian Algorithm", nK, K[0], K[nK - 1]);
+  TH1D  *hSVD  = new TH1D(sSVD.Data(), "SVD Algorithm", nK, K[0], K[nK - 1]);
+  hBay -> GetXaxis() -> SetName(sChiX.Data());
+  hSVD -> GetXaxis() -> SetName(sChiY.Data());
+  hBay -> Sumw2();
+  hSVD -> Sumw2();
+
 
   // loop over parameters
   Double_t chi2best = 999.;
@@ -161,10 +178,32 @@ void DoUnfolding() {
             bestFile = output;
           }
 
+          // record chi2
+          UInt_t iReg(0);
+          switch (method) {
+            case 1:
+              iReg = hBay -> FindBin(kReg);
+              hBay -> SetBinContent(iReg, chi2);
+              hBay -> SetBinError(iReg, 0.);
+              break;
+            case 2:
+              iReg = hSVD -> FindBin(kReg);
+              hSVD -> SetBinContent(iReg, chi2);
+              hSVD -> SetBinError(iReg, 0.);
+              break;
+          }
+
         }  // end k loop
       }  // end method loop
     }  // end tPrior loop
   }  // end nPrior loop
+
+
+  // save chi2
+  fChi2 -> cd();
+  hBay  -> Write();
+  hSVD  -> Write();
+  fChi2 -> Close();
 
   // announce winner
   TDatime end;
