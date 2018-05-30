@@ -40,24 +40,24 @@ void StJetFolder::CreatePlots() {
 
   // histogram colors
   const Int_t    cM = 810;
-  const Int_t    cU = 880;
+  const Int_t    cU = 870;
   const Int_t    cB = 800;
-  const Int_t    cP = 890;
+  const Int_t    cP = 860;
   const Int_t    cS = 860;
-  const Int_t    cR = 910;
-  const Int_t    cL = 850;
+  const Int_t    cR = 618;
+  const Int_t    cL = 1;
   // histogram marker styles
   const Int_t    mM = 29;
   const Int_t    mU = 24;
   const Int_t    mB = 24;
-  const Int_t    mP = 1;
+  const Int_t    mP = 29;
   const Int_t    mS = 24;
   const Int_t    mR = 7;
   // histogram line styles
   const Int_t    lM = 1;
   const Int_t    lU = 1;
   const Int_t    lB = 1;
-  const Int_t    lP = 2;
+  const Int_t    lP = 1;
   const Int_t    lS = 1;
   const Int_t    lR = 1;
   const Int_t    lL = 2;
@@ -204,7 +204,6 @@ void StJetFolder::CreatePlots() {
   pLoA   -> SetFillStyle(4000);
   pLoA   -> SetFillColor(0);
   pLoA   -> SetBorderMode(0);
-  pLoA   -> SetBorderSize(2);
   pLoA   -> SetFrameBorderMode(0);
   pLoA   -> SetTopMargin(0);
   pLoA   -> SetGrid(0, 0);
@@ -213,7 +212,6 @@ void StJetFolder::CreatePlots() {
   pUpA   -> SetFillStyle(4000);
   pUpA   -> SetFillColor(0);
   pUpA   -> SetBorderMode(0);
-  pUpA   -> SetBorderSize(2);
   pUpA   -> SetFrameBorderMode(0);
   pUpA   -> SetBottomMargin(0);
   pUpA   -> SetGrid(0, 0);
@@ -231,9 +229,9 @@ void StJetFolder::CreatePlots() {
   pUpA   -> cd();
   hUp    -> Draw();
   DrawHistogram(_hMeasured, "PE2 same", cM, cM, cM, mM, lM, fM, 1.);
-  DrawHistogram(_hUnfolded, "PE4 same", cU, cU, cU, mU, lU, fU, 1.);
-  DrawHistogram(_hBackfolded, "PE4 same", cB, cB, cB, mB, lB, fB, 1.);
-  DrawHistogram(_hPrior, "hist ][ same", cP, cP, cP, mP, lP, fP, 1.);
+  DrawHistogram(_hUnfolded, "PE6 same", cU, cU, cU, mU, lU, fU, 1.);
+  DrawHistogram(_hBackfolded, "PE6 same", cB, cB, cB, mB, lB, fB, 1.);
+  DrawHistogram(_hPrior, "PE2 same", cP, cP, cP, mP, lP, fP, 1.);
   lAll   -> Draw();
   _label -> Draw();
   cAll   -> Write();
@@ -246,7 +244,6 @@ void StJetFolder::CreatePlots() {
   pLo1   -> SetFillStyle(4000);
   pLo1   -> SetFillColor(0);
   pLo1   -> SetBorderMode(0);
-  pLo1   -> SetBorderSize(2);
   pLo1   -> SetFrameBorderMode(0);
   pLo1   -> SetTopMargin(0);
   pLo1   -> SetGrid(0, 0);
@@ -255,7 +252,6 @@ void StJetFolder::CreatePlots() {
   pUp1   -> SetFillStyle(4000);
   pUp1   -> SetFillColor(0);
   pUp1   -> SetBorderMode(0);
-  pUp1   -> SetBorderSize(2);
   pUp1   -> SetFrameBorderMode(0);
   pUp1   -> SetBottomMargin(0);
   pUp1   -> SetGrid(0, 0);
@@ -286,7 +282,6 @@ void StJetFolder::CreatePlots() {
   pLo2   -> SetFillStyle(4000);
   pLo2   -> SetFillColor(0);
   pLo2   -> SetBorderMode(0);
-  pLo2   -> SetBorderSize(2);
   pLo2   -> SetFrameBorderMode(0);
   pLo2   -> SetTopMargin(0);
   pLo2   -> SetGrid(0, 0);
@@ -295,7 +290,6 @@ void StJetFolder::CreatePlots() {
   pUp2   -> SetFillStyle(4000);
   pUp2   -> SetFillColor(0);
   pUp2   -> SetBorderMode(0);
-  pUp2   -> SetBorderSize(2);
   pUp2   -> SetFrameBorderMode(0);
   pUp2   -> SetBottomMargin(0);
   pUp2   -> SetGrid(0, 0);
@@ -326,7 +320,6 @@ void StJetFolder::CreatePlots() {
   pLo3   -> SetFillStyle(4000);
   pLo3   -> SetFillColor(0);
   pLo3   -> SetBorderMode(0);
-  pLo3   -> SetBorderSize(2);
   pLo3   -> SetFrameBorderMode(0);
   pLo3   -> SetTopMargin(0);
   pLo3   -> SetGrid(0, 0);
@@ -335,7 +328,6 @@ void StJetFolder::CreatePlots() {
   pUp3   -> SetFillStyle(4000);
   pUp3   -> SetFillColor(0);
   pUp3   -> SetBorderMode(0);
-  pUp3   -> SetBorderSize(2);
   pUp3   -> SetFrameBorderMode(0);
   pUp3   -> SetBottomMargin(0);
   pUp3   -> SetGrid(0, 0);

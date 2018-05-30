@@ -29,7 +29,8 @@ void StJetFolder::Init() {
   Bool_t inputOK = CheckFlags();
   if (!inputOK) assert(inputOK);
 
-  _response = new RooUnfoldResponse(_hSmeared, _hPrior, _hResponse);
+  //_response = new RooUnfoldResponse(_hSmeared, _hPrior, _hResponse);
+  _response = new RooUnfoldResponse(0, 0, _hResponse);
   if (_response) {
     PrintInfo(4);
     _flag[10] = true;
@@ -76,6 +77,9 @@ void StJetFolder::Unfold() {
       _hUnfolded = (TH1D*) inv -> Hreco();
       break;
   }
+
+  // TEST
+  _hUnfolded -> Divide(_hEfficiency);
 
   // make sure unfolded didn't exceed max bin
   Int_t nU = _hUnfolded -> GetNbinsX();
