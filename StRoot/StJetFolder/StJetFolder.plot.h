@@ -39,13 +39,15 @@ void StJetFolder::CreatePlots() {
 
 
   // histogram colors
-  const Int_t    cM = 810;
-  const Int_t    cU = 870;
-  const Int_t    cB = 800;
-  const Int_t    cP = 860;
-  const Int_t    cS = 860;
-  const Int_t    cR = 618;
-  const Int_t    cL = 1;
+  const Int_t    cM  = 810;
+  const Int_t    cU  = 870;
+  const Int_t    cB  = 800;
+  const Int_t    cP  = 860;
+  const Int_t    cS  = 860;
+  const Int_t    cBM = 810;
+  const Int_t    cUP = 860;
+  const Int_t    cSM = 418;
+  const Int_t    cL  = 1;
   // histogram marker styles
   const Int_t    mM = 29;
   const Int_t    mU = 24;
@@ -97,6 +99,16 @@ void StJetFolder::CreatePlots() {
   lAll -> AddEntry(_hUnfolded, "Unfolded");
   lAll -> AddEntry(_hBackfolded, "Backfolded");
   lAll -> AddEntry(_hPrior, "Prior");
+
+  TLegend *lUvB = new TLegend(0.3, 0.1, 0.5, 0.3);
+  lUvB -> SetFillColor(0);
+  lUvB -> SetFillStyle(0);
+  lUvB -> SetLineColor(0);
+  lUvB -> SetTextColor(1);
+  lUvB -> SetTextFont(42);
+  lUvB -> SetTextAlign(12);
+  lUvB -> AddEntry(_hUnfoldVsPriRatio, "unfolded / prior");
+  lUvB -> AddEntry(_hBackVsMeasRatio, "backfolded / measured");
 
   TLegend *lBvM = new TLegend(0.3, 0.1, 0.5, 0.3);
   lBvM -> SetFillColor(0);
@@ -223,7 +235,9 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLoA   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hBackVsMeasRatio, "PE2 same", cR, cR, cR, mR, lR, fR, 1.);
+  DrawHistogram(_hUnfoldVsPriRatio, "PE2 same", cUP, cUP, cUP, mR, lR, fR, 1.);
+  DrawHistogram(_hBackVsMeasRatio, "PE2 same", cBM, cBM, cBM, mR, lR, fR, 1.);
+  lUvB   -> Draw();
   lOne   -> Draw();
   pChi2  -> Draw();
   pUpA   -> cd();
@@ -263,7 +277,7 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo1   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hBackVsMeasRatio, "PE2 same", cR, cR, cR, mR, lR, fR, 1.);
+  DrawHistogram(_hBackVsMeasRatio, "PE2 same", cBM, cBM, cBM, mR, lR, fR, 1.);
   lOne   -> Draw();
   pChi2  -> Draw();
   pUp1   -> cd();
@@ -301,7 +315,7 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo2   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hPriVsUnfoldRatio, "PE2 same", cR, cR, cR, mR, lR, fR, 1.);
+  DrawHistogram(_hUnfoldVsPriRatio, "PE2 same", cUP, cUP, cUP, mR, lR, fR, 1.);
   lOne   -> Draw();
   pChi2  -> Draw();
   pUp2   -> cd();
@@ -339,7 +353,7 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo3   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hSmearVsMeasRatio, "PE2 same", cR, cR, cR, mR, lR, fR, 1.);
+  DrawHistogram(_hSmearVsMeasRatio, "PE2 same", cSM, cSM, cSM, mR, lR, fR, 1.);
   lOne   -> Draw();
   pChi2  -> Draw();
   pUp3   -> cd();
