@@ -105,16 +105,12 @@ void StJetFolder::Backfold(Double_t &chi2) {
     return;
   }
 
-  Int_t    nU  = _hUnfolded -> GetNbinsX();
-  Int_t    nM  = _hMeasured -> GetNbinsX();
-  Double_t u1  = _hUnfolded -> GetBinLowEdge(1);
-  Double_t u2  = _hUnfolded -> GetBinLowEdge(nU + 1);
-  Double_t m1  = _hMeasured -> GetBinLowEdge(1);
-  Double_t m2  = _hMeasured -> GetBinLowEdge(nM + 1);
-  _hNormalize  = new TH1D("hNormalize", "For normalizng backfolded spectrum", nU, u1, u2);
-  _hBackfolded = new TH1D("hBackfolded", "Backfolded spectrum", nM, m1, m2);
-  _hNormalize  -> Sumw2();
-  _hBackfolded -> Sumw2();
+  _hNormalize  = (TH1D*) _hUnfolded -> Clone();
+  _hBackfolded = (TH1D*) _hMeasured -> Clone();
+  _hNormalize  -> SetNameTitle("hNormalize", "For normalizing backfolded spectrum");
+  _hBackfolded -> SetNameTitle("hBackfolded", "Backfolded spectrum");
+  _hNormalize  -> Reset("ICE");
+  _hBackfolded -> Reset("ICE");
 
 
   // monte-carlo loop
