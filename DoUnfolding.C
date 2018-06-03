@@ -45,24 +45,24 @@ class StJetFolder;
 
 
 // input and output files
-const TString  pFile("input/pp200r9embed.unfoldingVariableBins.et9vz55.r03a02rm1chrg.dr03q15.root");
-const TString  sFile("input/pp200r9embed.unfoldingVariableBins.et9vz55.r03a02rm1chrg.dr03q15.root");
-const TString  mFile("input/pp200r9embed.unfoldingVariableBins.et9vz55.r03a02rm1chrg.dr03q15.root");
-const TString  eFile("input/pp200r9embed.unfoldingVariableBins.et9vz55.r03a02rm1chrg.dr03q15.root");
-const TString  rFile("input/pp200r9embed.unfoldingVariableBins.et9vz55.r03a02rm1chrg.dr03q15.root");
-const TString  oFile("pp200r9embed.closureTestVariableBinsRFFwFF.et9vz55.r03a02rm1chrg.dr03q15");
+const TString  pFile("input/pp200r9embed.unfoldingPtBin1.et9vz55.r03a02rm1chrg.dr03q15.root");
+const TString  sFile("input/pp200r9embed.unfoldingPtBin1.et9vz55.r03a02rm1chrg.dr03q15.root");
+const TString  mFile("input/pp200r9.forUnfoldingPtBin1.et920vz55.r03a02rm1chrg.root");
+const TString  eFile("input/pp200r9embed.unfoldingPtBin1.et9vz55.r03a02rm1chrg.dr03q15.root");
+const TString  rFile("input/pp200r9embed.unfoldingPtBin1.et9vz55.r03a02rm1chrg.dr03q15.root");
+const TString  oFile("pp200r9.unfolding.et9vz55.r03a02rm1chrg.dr03q15");
 // input namecycles
-const TString  pName("hSumParRFF");
-const TString  sName("hSumDetRFF");
-const TString  mName("hSumDetRFF");
-const TString  eName("hEfficiencyFF");
-const TString  rName("hResponseFF");
+const TString  pName("hSumParAll");
+const TString  sName("hSumDetAll");
+const TString  mName("Pi0/hJetPtCorrP");
+const TString  eName("hEfficiencyAll");
+const TString  rName("hResponseAll");
 
 // unfolding parameters (to loop over)
 const Int_t nM  = 2;
 const Int_t M[] = {1, 2};
-const Int_t nK  = 40;
-const Int_t K[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40};
+const Int_t nK  = 30;
+const Int_t K[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30};
 // prior parameters (to loop over)
 const Int_t    P   = 0;
 const Int_t    nN  = 1;
@@ -106,20 +106,33 @@ void DoUnfolding() {
   cout << "\nStarting folding: " << start.AsString() << "\n" << endl;
 
   // for recording chi2
-  TString sBay("hBayes");
-  TString sSVD("hSVD");
+  TString sBayU("hBayUnfold");
+  TString sBayB("hBayBackfold");
+  TString sSvdU("hSvdUnfold");
+  TString sSvdB("hSvdBackfold");
   TString sChiX("k_{reg}");
-  TString sChiY("#chi^{2}(backfold, measured)");
+  TString sChiYU("#chi^{2}(unfold, prior)");
+  TString sChiYB("#chi^{2}(backfold, measured)");
   TString sChi2(oFile);
   sChi2 += ".performance.root";
 
   TFile *fChi2 = new TFile(sChi2.Data(), "recreate");
-  TH1D  *hBay  = new TH1D(sBay.Data(), "Bayesian Algorithm", nK, K[0], K[nK - 1]);
-  TH1D  *hSVD  = new TH1D(sSVD.Data(), "SVD Algorithm", nK, K[0], K[nK - 1]);
-  hBay -> GetXaxis() -> SetName(sChiX.Data());
-  hSVD -> GetXaxis() -> SetName(sChiY.Data());
-  hBay -> Sumw2();
-  hSVD -> Sumw2();
+  TH1D  *hBayUnfold    = new TH1D(sBayU.Data(), "Bayesian Algorithm", nK, K[0], K[nK - 1]);
+  TH1D  *hBayBackfold  = new TH1D(sBayB.Data(), "Bayesian Algorithm", nK, K[0], K[nK - 1]);
+  TH1D  *hSvdUnfold    = new TH1D(sSvdU.Data(), "SVD Algorithm", nK, K[0], K[nK - 1]);
+  TH1D  *hSvdBackfold  = new TH1D(sSvdB.Data(), "SVD Algorithm", nK, K[0], K[nK - 1]);
+  hBayUnfold   -> GetXaxis() -> SetName(sChiX.Data());
+  hBayUnfold   -> GetYaxis() -> SetName(sChiYU.Data());
+  hBayBackfold -> GetXaxis() -> SetName(sChiX.Data());
+  hBayBackfold -> GetYaxis() -> SetName(sChiYB.Data());
+  hSvdUnfold   -> GetXaxis() -> SetName(sChiX.Data());
+  hSvdUnfold   -> GetYaxis() -> SetName(sChiYU.Data());
+  hSvdBackfold -> GetXaxis() -> SetName(sChiX.Data());
+  hSvdBackfold -> GetYaxis() -> SetName(sChiYB.Data());
+  hBayUnfold   -> Sumw2();
+  hBayBackfold -> Sumw2();
+  hSvdUnfold   -> Sumw2();
+  hSvdBackfold -> Sumw2();
 
 
   // loop over parameters
@@ -153,7 +166,8 @@ void DoUnfolding() {
           output += ".root";
 
           // create folder
-          Double_t    chi2 = 0.;
+          Double_t    chi2u = 0.;
+          Double_t    chi2b = 0.;
           StJetFolder f(output.Data());
           // set spectra
           f.SetPrior(pFile.Data(), pName.Data());
@@ -169,12 +183,14 @@ void DoUnfolding() {
           f.SetUnfoldParameters(method, kReg, nMC, nToy);
           // do unfolding
           f.Init();
-          f.Unfold();
-          f.Backfold(chi2);
+          f.Unfold(chi2u);
+          f.Backfold(chi2b);
           f.Finish();
 
-          if (chi2 < chi2best) {
-            chi2best = chi2;
+          const Double_t merit = TMath::Abs(chi2b - 1);
+          const Double_t best  = TMath::Abs(chi2best - 1);
+          if (merit < best) {
+            chi2best = chi2b;
             bestFile = output;
           }
 
@@ -182,14 +198,18 @@ void DoUnfolding() {
           UInt_t iReg(0);
           switch (method) {
             case 1:
-              iReg = hBay -> FindBin(kReg);
-              hBay -> SetBinContent(iReg, chi2);
-              hBay -> SetBinError(iReg, 0.);
+              iReg = hBayBackfold -> FindBin(kReg);
+              hBayUnfold   -> SetBinContent(iReg, chi2u);
+              hBayUnfold   -> SetBinError(iReg, 0.);
+              hBayBackfold -> SetBinContent(iReg, chi2b);
+              hBayBackfold -> SetBinError(iReg, 0.);
               break;
             case 2:
-              iReg = hSVD -> FindBin(kReg);
-              hSVD -> SetBinContent(iReg, chi2);
-              hSVD -> SetBinError(iReg, 0.);
+              iReg = hSvdBackfold -> FindBin(kReg);
+              hSvdUnfold   -> SetBinContent(iReg, chi2u);
+              hSvdUnfold   -> SetBinError(iReg, 0.);
+              hSvdBackfold -> SetBinContent(iReg, chi2b);
+              hSvdBackfold -> SetBinError(iReg, 0.);
               break;
           }
 
@@ -200,10 +220,12 @@ void DoUnfolding() {
 
 
   // save chi2
-  fChi2 -> cd();
-  hBay  -> Write();
-  hSVD  -> Write();
-  fChi2 -> Close();
+  fChi2        -> cd();
+  hBayUnfold   -> Write();
+  hBayBackfold -> Write();
+  hSvdUnfold   -> Write();
+  hSvdBackfold -> Write();
+  fChi2        -> Close();
 
   // announce winner
   TDatime end;
