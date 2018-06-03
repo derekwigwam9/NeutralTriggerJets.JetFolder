@@ -144,7 +144,7 @@ void StJetFolder::CreatePlots() {
   // create chi2 text
   TString x2txt("");
   TString x2str("");
-  x2str += _chi2;
+  x2str += _chi2backfold;
 
   ResizeString(x2str, 2);
   x2txt.Append("#chi^{2}/dof = ");

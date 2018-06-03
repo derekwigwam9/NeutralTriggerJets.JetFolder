@@ -29,7 +29,6 @@ void StJetFolder::Init() {
   Bool_t inputOK = CheckFlags();
   if (!inputOK) assert(inputOK);
 
-  //_response = new RooUnfoldResponse(_hSmeared, _hPrior, _hResponse);
   _response = new RooUnfoldResponse(0, 0, _hResponse);
   if (_response) {
     PrintInfo(4);
@@ -43,7 +42,7 @@ void StJetFolder::Init() {
 }  // end 'Init()'
 
 
-void StJetFolder::Unfold() {
+void StJetFolder::Unfold(Double_t &chi2unfold) {
 
   PrintInfo(5);
 
@@ -78,7 +77,7 @@ void StJetFolder::Unfold() {
       break;
   }
 
-  // TEST
+  // correct for efficiency
   _hUnfolded -> Divide(_hEfficiency);
 
   // make sure unfolded didn't exceed max bin
@@ -91,12 +90,16 @@ void StJetFolder::Unfold() {
     }
   }
 
+  // calculate chi2
+  _chi2unfold = CalculateChi2(_hPrior, _hUnfolded);
+  chi2unfold  = _chi2unfold;
+
   PrintInfo(6);
 
-}  // end 'Unfold()'
+}  // end 'Unfold(Double_t)'
 
 
-void StJetFolder::Backfold(Double_t &chi2) {
+void StJetFolder::Backfold(Double_t &chi2backfold) {
 
   PrintInfo(7);
 
@@ -130,20 +133,22 @@ void StJetFolder::Backfold(Double_t &chi2) {
     Double_t scale = iU / iN;
     _hBackfolded -> Scale(scale);
   }
+
+  // apply efficiency
   _hBackfolded -> Multiply(_hEfficiency);
-  _chi2 = CalculateChi2(_hMeasured, _hBackfolded);
-  chi2  = _chi2;
+  _chi2backfold = CalculateChi2(_hMeasured, _hBackfolded);
+  chi2backfold  = _chi2backfold;
 
   PrintInfo(8);
 
-}  // end 'Backfold()'
+}  // end 'Backfold(Double_t)'
 
 
 void StJetFolder::Finish() {
 
   // calculate ratios
   _hBackVsMeasRatio  = CalculateRatio(_hBackfolded, _hMeasured, "hBackVsMeasRatio");
-  _hPriVsUnfoldRatio = CalculateRatio(_hPrior, _hUnfolded, "hPriVsUnfoldRatio");
+  _hUnfoldVsPriRatio = CalculateRatio(_hUnfolded, _hPrior, "hUnfoldVsPriRatio");
   _hSmearVsMeasRatio = CalculateRatio(_hSmeared, _hMeasured, "hSmearVsMeasRatio");
   PrintInfo(9);
 
@@ -169,7 +174,7 @@ void StJetFolder::Finish() {
   _hNormalize        -> Write();
   _hBackfolded       -> Write();
   _hBackVsMeasRatio  -> Write();
-  _hPriVsUnfoldRatio -> Write();
+  _hUnfoldVsPriRatio -> Write();
   _hSmearVsMeasRatio -> Write();
   _hEfficiency       -> Write();
   _hResponse         -> Write();

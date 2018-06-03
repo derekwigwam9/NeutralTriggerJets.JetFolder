@@ -45,14 +45,16 @@ void StJetFolder::PrintInfo(const Int_t code) {
       cout << "    Unfolding..." << endl;
       break;
     case 6:
-      cout << "    Unfolding finished!" << endl;
+      cout << "    Unfolding finished!\n"
+           << "      Chi2 (unfold) = " << _chi2unfold
+           << endl;
       break;
     case 7:
       cout << "    Backfolding..." << endl;
       break;
     case 8:
       cout << "    Backfolding finished!\n"
-           << "      Chi2 = " << _chi2
+           << "      Chi2 (backfold) = " << _chi2backfold
            << endl;
       break;
     case 9:

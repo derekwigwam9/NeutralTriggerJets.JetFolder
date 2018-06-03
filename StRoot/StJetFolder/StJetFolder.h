@@ -75,8 +75,8 @@ public:
   void SetUnfoldParameters(const Int_t method, const Int_t kReg, const Int_t nMC, const Int_t nToy);
   // public methods ('StJetFolder.cxx')
   void Init();
-  void Unfold();
-  void Backfold(Double_t &chi2);
+  void Unfold(Double_t &chi2unfold);
+  void Backfold(Double_t &chi2backfold);
   void Finish();
 
 
@@ -94,7 +94,8 @@ private:
   Double_t  _mPrior;
   Double_t  _nPrior;
   Double_t  _tPrior;
-  Double_t  _chi2;
+  Double_t  _chi2unfold;
+  Double_t  _chi2backfold;
   // ROOT members
   TH1D      *_hPrior;
   TH1D      *_hSmeared;
@@ -104,7 +105,7 @@ private:
   TH1D      *_hEfficiency;
   TH1D      *_hNormalize;
   TH1D      *_hBackVsMeasRatio;
-  TH1D      *_hPriVsUnfoldRatio;
+  TH1D      *_hUnfoldVsPriRatio;
   TH1D      *_hSmearVsMeasRatio;
   TH2D      *_hResponse;
   TFile     *_fOut;
