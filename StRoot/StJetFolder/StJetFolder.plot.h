@@ -5,7 +5,7 @@
 // This class handles the unfolding of a provided spectrum.  This file
 // encapsulates various routines associated with plotting results.
 //
-// Last updated: 02.17.2017
+// Last updated: 06.04.2018
 
 
 #pragma once
@@ -81,10 +81,8 @@ void StJetFolder::CreatePlots() {
   const double_t y2lo = 6.5;
   // axis titles
   const TString sX("p_{T}^{jet} [GeV/c]");
-  const TString sYup("(1/N_{trg}) dN_{jet}/(dp_{T}^{jet} d#eta^{jet})");
-  const TString sYlo1("backfolded / measured");
-  const TString sYlo2("prior / unfolded");
-  const TString sYlo3("smeared / measured");
+  const TString sYup("(1/N_{trg}) dN_{jet}/(dp_{T}^{jet} d#eta^{jet}) [GeV/c]^{-1}");
+  const TString sYlo1("ratio");
 
 
   // generate legends
@@ -175,13 +173,14 @@ void StJetFolder::CreatePlots() {
   hUp -> GetXaxis() -> SetTitleSize(0.0);
   hUp -> GetXaxis() -> CenterTitle(true);
   hUp -> GetXaxis() -> SetLabelFont(42);
-  hUp -> GetXaxis() -> SetLabelSize(0.0);
+  hUp -> GetXaxis() -> SetLabelSize(0.035);
+  hUp -> GetXaxis() -> SetTitleOffset(1.);
   hUp -> GetYaxis() -> SetTitle(sYup);
   hUp -> GetYaxis() -> SetTitleFont(42);
   hUp -> GetYaxis() -> SetTitleSize(0.05);
   hUp -> GetYaxis() -> CenterTitle(true);
   hUp -> GetYaxis() -> SetLabelFont(42);
-  hUp -> GetYaxis() -> SetLabelSize(0.05);
+  hUp -> GetYaxis() -> SetLabelSize(0.035);
   hUp -> SetTitle(sUp -> Data());
   hUp -> SetTitleFont(42);
 
@@ -189,16 +188,18 @@ void StJetFolder::CreatePlots() {
   TH2D *hLo = new TH2D("hLower", "", nX, x1, x2, nYlo, y1lo, y2lo);
   hLo -> GetXaxis() -> SetTitle(sX);
   hLo -> GetXaxis() -> SetTitleFont(42);
-  hLo -> GetXaxis() -> SetTitleSize(0.0);
+  hLo -> GetXaxis() -> SetTitleSize(0.065);
+  hLo -> GetXaxis() -> SetTitleOffset(0.85);
   hLo -> GetXaxis() -> CenterTitle(true);
   hLo -> GetXaxis() -> SetLabelFont(42);
-  hLo -> GetXaxis() -> SetLabelSize(0.0);
+  hLo -> GetXaxis() -> SetLabelSize(0.065);
   hLo -> GetYaxis() -> SetTitle(sYlo1);
   hLo -> GetYaxis() -> SetTitleFont(42);
-  hLo -> GetYaxis() -> SetTitleSize(0.05);
+  hLo -> GetYaxis() -> SetTitleSize(0.085);
+  hLo -> GetYaxis() -> SetTitleOffset(0.45);
   hLo -> GetYaxis() -> CenterTitle(true);
   hLo -> GetYaxis() -> SetLabelFont(42);
-  hLo -> GetYaxis() -> SetLabelSize(0.05);
+  hLo -> GetYaxis() -> SetLabelSize(0.065);
   hLo -> GetYaxis() -> SetNdivisions(nD, 5, 0);
 
 
