@@ -139,23 +139,40 @@ void StJetFolder::CreatePlots() {
   lSvM -> AddEntry(_hSmeared, "Smeared Prior");
 
 
-  // create chi2 text
-  TString x2txt("");
-  TString x2str("");
-  x2str += _chi2backfold;
+  // create chi2 texts
+  TString x2txtB("");
+  TString x2strB("");
+  x2strB += _chi2backfold;
 
-  ResizeString(x2str, 2);
-  x2txt.Append("#chi^{2}/dof = ");
-  x2txt.Append(x2str);
+  TString x2txtU("");
+  TString x2strU("");
+  x2strU += _chi2unfold;
 
-  TPaveText *pChi2 = new TPaveText(0.5, 0.1, 0.7, 0.3, "NDC NB");
-  pChi2 -> SetFillColor(0);
-  pChi2 -> SetFillStyle(0);
-  pChi2 -> SetLineColor(0);
-  pChi2 -> SetTextColor(1);
-  pChi2 -> SetTextFont(42);
-  pChi2 -> SetTextAlign(12);
-  pChi2 -> AddText(x2txt.Data());
+  ResizeString(x2strB, 2);
+  x2txtB.Append("#chi^{2}/dof(backfold) = ");
+  x2txtB.Append(x2strB);
+
+  ResizeString(x2strU, 2);
+  x2txtU.Append("#chi^{2}/dof(unfold) = ");
+  x2txtU.Append(x2strU);
+
+  TPaveText *pChi2B = new TPaveText(0.5, 0.1, 0.7, 0.3, "NDC NB");
+  pChi2B -> SetFillColor(0);
+  pChi2B -> SetFillStyle(0);
+  pChi2B -> SetLineColor(0);
+  pChi2B -> SetTextColor(1);
+  pChi2B -> SetTextFont(42);
+  pChi2B -> SetTextAlign(12);
+  pChi2B -> AddText(x2txtB.Data());
+
+  TPaveText *pChi2U = new TPaveText(0.7, 0.3, 0.9, 0.5, "NDC NB");
+  pChi2U -> SetFillColor(0);
+  pChi2U -> SetFillStyle(0);
+  pChi2U -> SetLineColor(0);
+  pChi2U -> SetTextColor(1);
+  pChi2U -> SetTextFont(42);
+  pChi2U -> SetTextAlign(12);
+  pChi2U -> AddText(x2txtU.Data());
 
 
 
@@ -236,11 +253,12 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLoA   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hUnfoldVsPriRatio, "PE2 same", cUP, cUP, cUP, mR, lR, fR, 1.);
-  DrawHistogram(_hBackVsMeasRatio, "PE2 same", cBM, cBM, cBM, mR, lR, fR, 1.);
+  DrawHistogram(_hUnfoldVsPriRatio, "PE6 same", cUP, cUP, cUP, mR, lR, fR, 1.);
+  DrawHistogram(_hBackVsMeasRatio, "PE6 same", cBM, cBM, cBM, mR, lR, fR, 1.);
   lUvB   -> Draw();
   lOne   -> Draw();
-  pChi2  -> Draw();
+  pChi2U -> Draw();
+  pChi2B -> Draw();
   pUpA   -> cd();
   hUp    -> Draw();
   DrawHistogram(_hMeasured, "PE2 same", cM, cM, cM, mM, lM, fM, 1.);
@@ -278,13 +296,13 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo1   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hBackVsMeasRatio, "PE2 same", cBM, cBM, cBM, mR, lR, fR, 1.);
+  DrawHistogram(_hBackVsMeasRatio, "PE6 same", cBM, cBM, cBM, mR, lR, fR, 1.);
   lOne   -> Draw();
-  pChi2  -> Draw();
+  pChi2B -> Draw();
   pUp1   -> cd();
   hUp    -> Draw();
   DrawHistogram(_hMeasured, "PE2 same", cM, cM, cM, mM, lM, fM, 1.);
-  DrawHistogram(_hBackfolded, "PE2 same", cB, cB, cB, mB, lB, fB, 1.);
+  DrawHistogram(_hBackfolded, "PE6 same", cB, cB, cB, mB, lB, fB, 1.);
   lBvM   -> Draw();
   _label -> Draw();
   cBvM   -> Write();
@@ -316,13 +334,13 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo2   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hUnfoldVsPriRatio, "PE2 same", cUP, cUP, cUP, mR, lR, fR, 1.);
+  DrawHistogram(_hUnfoldVsPriRatio, "PE6 same", cUP, cUP, cUP, mR, lR, fR, 1.);
   lOne   -> Draw();
-  pChi2  -> Draw();
+  pChi2U -> Draw();
   pUp2   -> cd();
   hUp    -> Draw();
   DrawHistogram(_hUnfolded, "PE2 same", cU, cU, cU, mU, lU, fU, 1.);
-  DrawHistogram(_hPrior, "PE2 same", cP, cP, cP, mP, lP, fP, 1.);
+  DrawHistogram(_hPrior, "PE6 same", cP, cP, cP, mP, lP, fP, 1.);
   lPvU   -> Draw();
   _label -> Draw();
   cPvU   -> Write();
@@ -356,7 +374,6 @@ void StJetFolder::CreatePlots() {
   hLo    -> Draw();
   DrawHistogram(_hSmearVsMeasRatio, "PE2 same", cSM, cSM, cSM, mR, lR, fR, 1.);
   lOne   -> Draw();
-  pChi2  -> Draw();
   pUp3   -> cd();
   hUp    -> Draw();
   DrawHistogram(_hMeasured, "PE2 same", cM, cM, cM, mM, lM, fM, 1.);
