@@ -5,7 +5,7 @@
 // This class handles the unfolding of a provided spectrum.  This file
 // encapsulates various mathematical routines.
 //
-// Last updated: 05.27.2018
+// Last updated: 07.15.2018
 
 
 #pragma once
@@ -143,6 +143,55 @@ Double_t StJetFolder::CalculateChi2(const TH1D *hA, TH1D *hB) {
   return chi2;
 
 }  // end 'CalculateChi2(TH1D*, TH1D*)'
+
+
+Double_t StJetFolder::Levy(const Double_t *x, const Double_t *p) {
+
+  const Double_t tau = TMath::TwoPi();
+  const Double_t pT  = x[0];
+  const Double_t b   = p[0];
+  const Double_t m   = p[1];
+  const Double_t n   = p[2];
+  const Double_t t   = p[3];
+  const Double_t mT  = sqrt((pT * pT) + (m * m));
+
+  const Double_t num = tau * b * pT;
+  const Double_t arg = 1 + ((mT - m) / (n * t));
+  const Double_t den = pow(arg, n);
+  const Double_t lev = num / den;
+  return lev;
+
+}  // end 'Levy(Double_t*, Double_t*)'
+
+
+Double_t StJetFolder::Tsallis(const Double_t *x, const Double_t *p) {
+
+  const Double_t tau = TMath::TwoPi();
+  const Double_t pT  = x[0];
+  const Double_t b   = p[0];
+  const Double_t n   = p[1];
+  const Double_t t   = p[2];
+
+  const Double_t pf  = tau * b * pT;
+  const Double_t p0  = t / (1 - n);
+  const Double_t q   = 1 / (1 - n);
+  const Double_t tsa = pow(pf * (1 - (pT / p0)), q);
+  return tsa;
+
+}  // end 'Tsallis(Double_t*, Double_t*)'
+
+
+Double_t StJetFolder::Exponential(const Double_t *x, const Double_t *p) {
+
+  const Double_t pT = x[0];
+  const Double_t b  = p[0];
+  const Double_t t  = p[1];
+
+  const Double_t z  = pT / t;
+  const Double_t ex = b * exp(-1.*z);
+  return ex;
+
+}  // end 'Exponential(Double_t*, Double_t*)'
 
 // End ------------------------------------------------------------------------
  

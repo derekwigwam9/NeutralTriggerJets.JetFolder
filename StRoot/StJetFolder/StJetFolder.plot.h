@@ -71,12 +71,12 @@ void StJetFolder::CreatePlots() {
   const Int_t    fS = 0;
   const Int_t    fR = 0;
   // histogram dimensions
-  const Int_t    nYup = 1000;
-  const Int_t    nYlo = 65;
-  const Double_t x1   = 0.;
-  const Double_t x2   = 60.;
-  const Double_t y1up = 0.000005;
-  const Double_t y2up = 0.5;
+  const Int_t    nYup = 10000;
+  const Int_t    nYlo = 80;
+  const Double_t x1   = -10.;
+  const Double_t x2   = 70.;
+  const Double_t y1up = 0.0000005;
+  const Double_t y2up = 5.;
   const Double_t y1lo = 0.;
   const double_t y2lo = 6.5;
   // axis titles

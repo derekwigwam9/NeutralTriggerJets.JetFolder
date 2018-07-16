@@ -5,7 +5,7 @@
 // This class handles the unfolding of a provided spectrum.  This file
 // encapsulates various internal routines (e.g. printing error messages).
 //
-// Last updated: 02.17.2017
+// Last updated: 07.15.2018
 
 
 #pragma once
@@ -119,6 +119,67 @@ void StJetFolder::PrintError(const Int_t code) {
   }
 
 }  // end 'PrintInfo(Int_t)'
+
+
+void StJetFolder::InitializePriors() {
+
+  // for normalization
+  TH1D *hSmearNorm = (TH1D*) _hMeasured -> Clone();
+  TH1D *hAfterEff  = (TH1D*) _hMeasured -> Clone();
+  hSmearNorm -> Reset("ICE");
+  hAfterEff  -> Divide(_hEfficiency);
+
+
+  // create particle-level prior
+  switch (_prior) {
+    case 1:
+      _hPrior -> Reset("ICE");
+      _hPrior -> FillRandom("fLevy", _nMC);
+      break;
+    case 2:
+      _hPrior -> Reset("ICE");
+      _hPrior -> FillRandom("fTsallis", _nMC);
+      break;
+    case 3:
+      _hPrior -> Reset("ICE");
+      _hPrior -> FillRandom("fExponential", _nMC);
+      break;
+  }
+
+  const Double_t iPar   = hAfterEff -> Integral();
+  const Double_t iParMC = _hPrior   -> Integral();
+  const Double_t scaleP = iPar / iParMC;
+  if (iParMC > 0.) _hPrior -> Scale(scaleP);
+
+  // normalize by bin width
+  const UInt_t nBinsP = _hPrior -> GetNbinsX();
+  for (UInt_t iBinP = 0; iBinP < nBinsP; iBinP++) {
+    const Double_t pVal = _hPrior -> GetBinContent(iBinP);
+    const Double_t pErr = _hPrior -> GetBinError(iBinP);
+    const Double_t pBin = _hPrior -> GetBinWidth(iBinP);
+    _hPrior -> SetBinContent(iBinP, pVal / pBin);
+    _hPrior -> SetBinError(iBinP, pErr / pBin);
+  }
+
+
+  // create detector-level prior
+  _hSmeared -> Reset("ICE");
+  for (Int_t iMC = 0; iMC < _nMC; iMC++) {
+    const Double_t p = _hPrior -> GetRandom();
+    const Double_t s = Smear(p);
+    hSmearNorm -> Fill(p);
+    if (s > -1000.) _hSmeared -> Fill(s);
+  }
+
+  const Double_t iNorm  = _hPrior    -> Integral();
+  const Double_t iDetMC = hSmearNorm -> Integral();
+  const Double_t scaleS = iNorm / iDetMC;
+  if (iNorm > 0.) _hSmeared -> Scale(scaleS);
+
+  // apply efficiency
+  _hSmeared -> Multiply(_hEfficiency);
+
+}  // end 'InitializePriors()'
 
 
 Bool_t StJetFolder::CheckFlags() {

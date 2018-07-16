@@ -5,7 +5,7 @@
 // This class handles the unfolding of a provided spectrum.  This file
 // encapsulates I/O routines.
 //
-// Last updated: 02.17.2017
+// Last updated: 07.15.2018
 
 
 #pragma once
@@ -309,6 +309,17 @@ void StJetFolder::SetPriorParameters(const Int_t prior, const Double_t bPrior, c
   _mPrior = mPrior;
   _nPrior = nPrior;
   _tPrior = tPrior;
+
+  // create prior functions
+  const Double_t nBinsP = _hPrior -> GetNbinsX();
+  const Double_t startP = _hPrior -> GetBinLowEdge(1);
+  const Double_t stopP  = _hPrior -> GetBinLowEdge(nBinsP + 1);
+  _fLevy        = new TF1("fLevy", StJetFolder::Levy, startP, stopP, 4);
+  _fTsallis     = new TF1("fTsallis", StJetFolder::Tsallis, startP, stopP, 3);
+  _fExponential = new TF1("fExponential", StJetFolder::Exponential, startP, stopP, 2);
+  _fLevy        -> SetParameters(_bPrior, _mPrior, _nPrior, _tPrior);
+  _fTsallis     -> SetParameters(_bPrior, _nPrior, _tPrior);
+  _fExponential -> SetParameters(_bPrior, _tPrior);
 
 
   _flag[8] = true;

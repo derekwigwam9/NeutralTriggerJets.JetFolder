@@ -13,7 +13,7 @@
 //   backfold -- unfolded spectrum with efficiencies, smearing,
 //               etc. applied.
 //
-// Last updated: 02.17.2017
+// Last updated: 07.15.2018
 
 
 #ifndef StJetFolder_h
@@ -79,6 +79,11 @@ public:
   void Backfold(Double_t &chi2backfold);
   void Finish();
 
+  // static public methods ('StJetFolder.math.h')
+  static Double_t Levy(const Double_t *x, const Double_t *p);
+  static Double_t Tsallis(const Double_t *x, const Double_t *p);
+  static Double_t Exponential(const Double_t *x, const Double_t *p);
+
 
 private:
 
@@ -97,6 +102,9 @@ private:
   Double_t  _chi2unfold;
   Double_t  _chi2backfold;
   // ROOT members
+  TF1       *_fLevy;
+  TF1       *_fTsallis;
+  TF1       *_fExponential;
   TH1D      *_hPrior;
   TH1D      *_hSmeared;
   TH1D      *_hMeasured;  
@@ -121,6 +129,7 @@ private:
   // private methods ('StJetFolder.sys.h')
   void     PrintInfo(const Int_t code);
   void     PrintError(const Int_t code);
+  void     InitializePriors();
   Bool_t   CheckFlags();
   // private methods ('StJetFolder.plot.h')
   void     CreateLabel();

@@ -1,12 +1,12 @@
 // 'StJetFolder.cxx'
 // Derek Anderson
-// 02.14.2017
+// 07.15.2018
 //
 // This class handles the unfolding of a provided spectrum.  This file
 // contains the 'Init()', 'Unfold()', 'Backfold()', and 'Finish()'
 // routines.
 //
-// Last updated: 02.17.2017
+// Last updated: 07.15.2018
 
 
 #define StJetFolder_cxx
@@ -28,6 +28,9 @@ void StJetFolder::Init() {
 
   Bool_t inputOK = CheckFlags();
   if (!inputOK) assert(inputOK);
+
+  Bool_t useDifferentPrior = (_prior > 0);
+  if (useDifferentPrior) InitializePriors();
 
   _response = new RooUnfoldResponse(0, 0, _hResponse);
   if (_response) {
