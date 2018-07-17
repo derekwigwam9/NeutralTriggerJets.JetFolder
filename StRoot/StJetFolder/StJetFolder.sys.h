@@ -153,7 +153,7 @@ void StJetFolder::InitializePriors() {
 
   // normalize by bin width
   const UInt_t nBinsP = _hPrior -> GetNbinsX();
-  for (UInt_t iBinP = 0; iBinP < nBinsP; iBinP++) {
+  for (UInt_t iBinP = 1; iBinP < (nBinsP + 1); iBinP++) {
     const Double_t pVal = _hPrior -> GetBinContent(iBinP);
     const Double_t pErr = _hPrior -> GetBinError(iBinP);
     const Double_t pBin = _hPrior -> GetBinWidth(iBinP);
