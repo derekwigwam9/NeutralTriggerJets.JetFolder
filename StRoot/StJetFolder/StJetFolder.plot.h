@@ -239,7 +239,7 @@ void StJetFolder::CreatePlots() {
   pLoA   -> SetLeftMargin(0.15);
   pLoA   -> SetRightMargin(0.05);
   pLoA   -> SetTopMargin(0.);
-  pLoA   -> SetBottomMargin(0.15);
+  pLoA   -> SetBottomMargin(0.25);
   pLoA   -> SetGrid(0, 0);
   pLoA   -> SetTickx(1);
   pLoA   -> SetTicky(1);
@@ -249,7 +249,7 @@ void StJetFolder::CreatePlots() {
   pUpA   -> SetFrameBorderMode(2);
   pUpA   -> SetLeftMargin(0.15);
   pUpA   -> SetRightMargin(0.05);
-  pUpA   -> SetTopMargin(0.15);
+  pUpA   -> SetTopMargin(0.05);
   pUpA   -> SetBottomMargin(0.);
   pUpA   -> SetGrid(0, 0);
   pUpA   -> SetTickx(1);
@@ -277,9 +277,9 @@ void StJetFolder::CreatePlots() {
   cAll   -> Write();
   cAll   -> Close();
 
-  TCanvas *cBvM = new TCanvas("cBvM", "Backfold vs. measured", 850, 850);
-  TPad    *pLo1 = new TPad("pLo1", "ratio", 0, 0, 1, 0.33);
-  TPad    *pUp1 = new TPad("pUp1", "backfold and measured", 0, 0.33, 1, 1);
+  TCanvas *cBvM = new TCanvas("cBvM", "Backfold vs. measured", 750, 950);
+  TPad    *pLo1 = new TPad("pLo1", "ratio", 0, 0, 1, 0.35);
+  TPad    *pUp1 = new TPad("pUp1", "backfold and measured", 0, 0.35, 1, 1);
   // set plot options
   pLo1   -> SetFillStyle(4000);
   pLo1   -> SetFillColor(0);
@@ -288,7 +288,7 @@ void StJetFolder::CreatePlots() {
   pLo1   -> SetLeftMargin(0.15);
   pLo1   -> SetRightMargin(0.05);
   pLo1   -> SetTopMargin(0.);
-  pLo1   -> SetBottomMargin(0.15);
+  pLo1   -> SetBottomMargin(0.25);
   pLo1   -> SetGrid(0, 0);
   pLo1   -> SetTickx(1);
   pLo1   -> SetTicky(1);
@@ -298,7 +298,7 @@ void StJetFolder::CreatePlots() {
   pUp1   -> SetFrameBorderMode(2);
   pUp1   -> SetLeftMargin(0.15);
   pUp1   -> SetRightMargin(0.05);
-  pUp1   -> SetTopMargin(0.15);
+  pUp1   -> SetTopMargin(0.05);
   pUp1   -> SetBottomMargin(0.);
   pUp1   -> SetGrid(0, 0);
   pUp1   -> SetTickx(1);
@@ -321,9 +321,9 @@ void StJetFolder::CreatePlots() {
   cBvM   -> Write();
   cBvM   -> Close();
 
-  TCanvas *cPvU = new TCanvas("cPvU", "Prior vs. unfolded", 850, 850);
-  TPad    *pLo2 = new TPad("pLo2", "ratio", 0, 0, 1, 0.33);
-  TPad    *pUp2 = new TPad("pUp2", "prior and unfolded", 0, 0.33, 1, 1);
+  TCanvas *cPvU = new TCanvas("cPvU", "Prior vs. unfolded", 750, 950);
+  TPad    *pLo2 = new TPad("pLo2", "ratio", 0, 0, 1, 0.35);
+  TPad    *pUp2 = new TPad("pUp2", "prior and unfolded", 0, 0.35, 1, 1);
   // set plot options
   pLo2   -> SetFillStyle(4000);
   pLo2   -> SetFillColor(0);
@@ -332,7 +332,7 @@ void StJetFolder::CreatePlots() {
   pLo2   -> SetLeftMargin(0.15);
   pLo2   -> SetRightMargin(0.05);
   pLo2   -> SetTopMargin(0.);
-  pLo2   -> SetBottomMargin(0.15);
+  pLo2   -> SetBottomMargin(0.25);
   pLo2   -> SetGrid(0, 0);
   pLo2   -> SetTickx(1);
   pLo2   -> SetTicky(1);
@@ -342,7 +342,7 @@ void StJetFolder::CreatePlots() {
   pUp2   -> SetFrameBorderMode(2);
   pUp2   -> SetLeftMargin(0.15);
   pUp2   -> SetRightMargin(0.05);
-  pUp2   -> SetTopMargin(0.15);
+  pUp2   -> SetTopMargin(0.05);
   pUp2   -> SetBottomMargin(0.);
   pUp2   -> SetGrid(0, 0);
   pUp2   -> SetTickx(1);
@@ -365,9 +365,9 @@ void StJetFolder::CreatePlots() {
   cPvU   -> Write();
   cPvU   -> Close();
 
-  TCanvas *cSvM = new TCanvas("cSvM", "Smear vs. measured", 850, 850);
-  TPad    *pLo3 = new TPad("pLo3", "ratio", 0, 0, 1, 0.33);
-  TPad    *pUp3 = new TPad("pUp3", "smeared and measured", 0, 0.33, 1, 1);
+  TCanvas *cSvM = new TCanvas("cSvM", "Smear vs. measured", 750, 950);
+  TPad    *pLo3 = new TPad("pLo3", "ratio", 0, 0, 1, 0.35);
+  TPad    *pUp3 = new TPad("pUp3", "smeared and measured", 0, 0.35, 1, 1);
   // set plot options
   pLo3   -> SetFillStyle(4000);
   pLo3   -> SetFillColor(0);
@@ -376,7 +376,7 @@ void StJetFolder::CreatePlots() {
   pLo3   -> SetLeftMargin(0.15);
   pLo3   -> SetRightMargin(0.05);
   pLo3   -> SetTopMargin(0.);
-  pLo3   -> SetBottomMargin(0.15);
+  pLo3   -> SetBottomMargin(0.25);
   pLo3   -> SetGrid(0, 0);
   pLo3   -> SetTickx(1);
   pLo3   -> SetTicky(1);
@@ -386,7 +386,7 @@ void StJetFolder::CreatePlots() {
   pUp3   -> SetFrameBorderMode(2);
   pUp3   -> SetLeftMargin(0.15);
   pUp3   -> SetRightMargin(0.05);
-  pUp3   -> SetTopMargin(0.15);
+  pUp3   -> SetTopMargin(0.05);
   pUp3   -> SetBottomMargin(0.);
   pUp3   -> SetGrid(0, 0);
   pUp3   -> SetTickx(1);
