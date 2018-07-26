@@ -49,13 +49,13 @@ class StJetFolder;
 
 
 // input and output files
-static const TString  pFile("input/pp200r9embed.et920vs915check.et920vz55.r05a065rm1chrg.root");
-static const TString  sFile("input/pp200r9embed.et920vs915check.et920vz55.r05a065rm1chrg.root");
-//static const TString  mFile("input/pp200r9embed.et920vs915check.et920vz55.r05a065rm1chrg.root");
-static const TString  mFile("input/pp200r9.et920vs915check.et915vz55.r05a065rm1chrg.root");
-static const TString  eFile("input/pp200r9embed.et920vs915check.et920vz55.r05a065rm1chrg.root");
-static const TString  rFile("input/pp200r9embed.et920vs915check.et920vz55.r05a065rm1chrg.root");
-static const TString  oFile("pp200r9.et920vs915check.et920vz55.r05a065rm1chrg");
+static const TString  pFile("input/pp200r9embed.et920vs915check.et920vz55.r02a005rm1chrg.root");
+static const TString  sFile("input/pp200r9embed.et920vs915check.et920vz55.r02a005rm1chrg.root");
+//static const TString  mFile("input/pp200r9embed.et920vs915check.et920vz55.r02a005rm1chrg.root");
+static const TString  mFile("input/pp200r9.et920vs915check.et915vz55.r02a005rm1chrg.root");
+static const TString  eFile("input/pp200r9embed.et920vs915check.et920vz55.r02a005rm1chrg.root");
+static const TString  rFile("input/pp200r9embed.et920vs915check.et920vz55.r02a005rm1chrg.root");
+static const TString  oFile("pp200r9.et920vs915check.et920vz55.r02a005rm1chrg");
 // input namecycles
 static const TString  pName("hSumParAll");
 static const TString  sName("hSumDetAll");
@@ -67,22 +67,22 @@ static const TString  rName("hResponseAll");
 // unfolding parameters (to loop over)
 static const Int_t nM  = 1;
 static const Int_t M[] = {1};
-static const Int_t nK  = 5;
-static const Int_t K[] = {1, 2, 3, 4, 5};
+static const Int_t nK  = 3;
+static const Int_t K[] = {1, 2, 3};
 // prior parameters (to loop over)
 static const Int_t    nP  = 1;
-static const Int_t    nN  = 2;
+static const Int_t    nN  = 3;
 static const Int_t    nT  = 1;
 static const Int_t    P[] = {1};
-static const Double_t N[] = {5.8, 6.8};
+static const Double_t N[] = {5.8, 6.8, 7.8};
 static const Double_t T[] = {1.8};
 
 
 // jet parameters (won't impact unfolding)
 static const Int_t    nRM     = 1;
 static const Int_t    type    = 0;
-static const Double_t rJet    = 0.5;
-static const Double_t aMin    = 0.65;
+static const Double_t rJet    = 0.2;
+static const Double_t aMin    = 0.05;
 static const Double_t pTmin   = 0.2;
 static const Double_t eTmin   = 9.;
 static const Double_t eTmax   = 15.;
@@ -110,6 +110,17 @@ void DoUnfolding() {
 
   TDatime start;
   cout << "\nStarting folding: " << start.AsString() << "\n" << endl;
+
+
+  // create output stream
+  const TString sStream(oFile.Data());
+  sStream += ".bestFiles.list";
+
+  ofstream bestFiles(sStream.Data());
+  if (!bestFiles) {
+    cerr << "PANIC: couldn't open output stream!" << endl;
+    return;
+  }
 
 
   // prior loops
@@ -320,6 +331,10 @@ void DoUnfolding() {
              << "  Best chi2 = " << chi2best << "\n"
              << "  Best file = " << bestFile << "\n"
              << endl;
+
+        // stream winner
+        bestFiles << bestFile.Data();
+        bestFiles << endl;
 
       }  // end tPrior loop
     }  // end nPrior loop
