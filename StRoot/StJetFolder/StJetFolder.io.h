@@ -254,10 +254,10 @@ void StJetFolder::SetJetInfo(const Int_t type, const Int_t nRM, const Double_t r
   TString pTxt("");
   switch (type) {
     case 0:
-      tTxt = "#color[2]{Charged jets}";
+      tTxt = "#bf{charged jets}";
       break;
     case 1:
-      tTxt = "#color[2]{Full jets};";
+      tTxt = "#bf{full jets};";
       break;
   }
 
@@ -282,7 +282,7 @@ void StJetFolder::SetJetInfo(const Int_t type, const Int_t nRM, const Double_t r
   pTxt.Append(", ");
 
   // combine strings
-  _sJet1 = new TString("anti-k_{T} algo., ");
+  _sJet1 = new TString("anti-k_{T}, ");
   _sJet2 = new TString(aTxt);
   _sJet3 = new TString(tTxt);
   _sJet1 -> Append(rTxt);
@@ -327,12 +327,14 @@ void StJetFolder::SetPriorParameters(const Int_t prior, const Double_t bPrior, c
 }  // end 'SetPriorParameters(Int_t, Double_t, Double_t, Double_t, Double_t)'
 
 
-void StJetFolder::SetUnfoldParameters(const Int_t method, const Int_t kReg, const Int_t nMC, const Int_t nToy) {
+void StJetFolder::SetUnfoldParameters(const Int_t method, const Int_t kReg, const Int_t nMC, const Int_t nToy, const Double_t uMax, const Double_t bMax) {
 
   _method = method;
   _kReg   = kReg;
   _nMC    = nMC;
   _nToy   = nToy;
+  _uMax   = uMax;
+  _bMax   = bMax;
 
 
   _flag[9] = true;

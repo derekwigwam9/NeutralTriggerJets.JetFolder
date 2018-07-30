@@ -49,9 +49,10 @@ using namespace std;
 
 
 // global constants
-const Int_t    Nflag = 11;
-const Double_t Umax  = 100.;
-const Double_t Mpion = 0.140;
+const Int_t    Nflag   = 11;
+const Double_t Mpion   = 0.140;
+const Double_t UdefMax = 100.;
+const Double_t BdefMax = 100.;
 
 
 
@@ -72,7 +73,7 @@ public:
   void SetTriggerInfo(const Int_t trigger, const Double_t eTmin, const Double_t eTmax, const Double_t hMax);
   void SetJetInfo(const Int_t type, const Int_t nRM, const Double_t rJet, const Double_t aMin, const Double_t pTmin);
   void SetPriorParameters(const Int_t prior, const Double_t bPrior, const Double_t mPrior, const Double_t nPrior, const Double_t tPrior);
-  void SetUnfoldParameters(const Int_t method, const Int_t kReg, const Int_t nMC, const Int_t nToy);
+  void SetUnfoldParameters(const Int_t method, const Int_t kReg, const Int_t nMC, const Int_t nToy, const Double_t uMax=UdefMax, const Double_t bMax=BdefMax);
   // public methods ('StJetFolder.cxx')
   void Init();
   void Unfold(Double_t &chi2unfold);
@@ -101,6 +102,8 @@ private:
   Double_t  _tPrior;
   Double_t  _chi2unfold;
   Double_t  _chi2backfold;
+  Double_t  _uMax;
+  Double_t  _bMax;
   // ROOT members
   TF1       *_fLevy;
   TF1       *_fTsallis;

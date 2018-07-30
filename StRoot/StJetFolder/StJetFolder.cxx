@@ -87,7 +87,7 @@ void StJetFolder::Unfold(Double_t &chi2unfold) {
   Int_t nU = _hUnfolded -> GetNbinsX();
   for (Int_t i = 1; i < nU + 1; i++) {
     Double_t uBin = _hUnfolded -> GetBinLowEdge(i);
-    if (uBin > Umax) {
+    if (uBin > _uMax) {
       _hUnfolded -> SetBinContent(i, 0.);
       _hUnfolded -> SetBinError(i, 0.);
     }

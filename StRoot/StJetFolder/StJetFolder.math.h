@@ -81,7 +81,7 @@ Double_t StJetFolder::Smear(const Double_t yP) {
   else
     xS = hSmear -> GetRandom();
 
-  if (xS > Umax)
+  if (xS > _bMax)
     xS = -1000.;
   return xS;
 
