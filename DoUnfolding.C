@@ -49,33 +49,33 @@ class StJetFolder;
 
 
 // input and output files
-static const TString  pFile("input/pp200r9embed.et920vs915check.et920vz55.r02a005rm1chrg.root");
-static const TString  sFile("input/pp200r9embed.et920vs915check.et920vz55.r02a005rm1chrg.root");
-//static const TString  mFile("input/pp200r9embed.et920vs915check.et920vz55.r02a005rm1chrg.root");
-static const TString  mFile("input/pp200r9.et920vs915check.et915vz55.r02a005rm1chrg.root");
-static const TString  eFile("input/pp200r9embed.et920vs915check.et920vz55.r02a005rm1chrg.root");
-static const TString  rFile("input/pp200r9embed.et920vs915check.et920vz55.r02a005rm1chrg.root");
-static const TString  oFile("pp200r9.et920vs915check.et920vz55.r02a005rm1chrg");
+static const TString pFile("input/pp200r9embed.pTbinRes.et915vz55.r05a065rm1chrg.root");
+static const TString sFile("input/pp200r9embed.pTbinRes.et915vz55.r05a065rm1chrg.root");
+//static const TString mFile("input/pp200r9embed.pTbinRes.et915vz55.r05a065rm1chrg.root");
+static const TString mFile("input/pp200r9.pTbinRes.et915vz55.r05a065rm1chrg.root");
+static const TString eFile("input/pp200r9embed.pTbinRes.et915vz55.r05a065rm1chrg.root");
+static const TString rFile("input/pp200r9embed.pTbinRes.et915vz55.r05a065rm1chrg.root");
+static const TString oFile("pp200r9.methodSystematic.et915vz55.r05a065rm1chrg");
 // input namecycles
-static const TString  pName("hSumParAll");
-static const TString  sName("hSumDetAll");
+static const TString pName("hSumParAll");
+static const TString sName("hSumDetAll");
 //static const TString  mName("hSumDetAll");
-static const TString  mName("Pi0/hJetPtCorrP");
-static const TString  eName("hEfficiencyAll");
-static const TString  rName("hResponseAll");
+static const TString mName("Pi0/hJetPtCorrP");
+static const TString eName("hEfficiencyAll");
+static const TString rName("hResponseAll");
 
 // unfolding parameters (to loop over)
-static const Int_t nM  = 1;
-static const Int_t M[] = {1};
-static const Int_t nK  = 3;
-static const Int_t K[] = {1, 2, 3};
+static const Int_t nM  = 2;
+static const Int_t M[] = {1, 2};
+static const Int_t nK  = 15;
+static const Int_t K[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 // prior parameters (to loop over)
 static const Int_t    nP  = 1;
-static const Int_t    nN  = 3;
+static const Int_t    nN  = 1;
 static const Int_t    nT  = 1;
-static const Int_t    P[] = {1};
-static const Double_t N[] = {5.8, 6.8, 7.8};
-static const Double_t T[] = {1.8};
+static const Int_t    P[] = {0};
+static const Double_t N[] = {5.8};
+static const Double_t T[] = {0.4};
 
 
 // jet parameters (won't impact unfolding)
@@ -84,18 +84,20 @@ static const Int_t    type    = 0;
 static const Double_t rJet    = 0.2;
 static const Double_t aMin    = 0.05;
 static const Double_t pTmin   = 0.2;
+static const Double_t pTmaxU  = 47.;
+static const Double_t pTmaxB  = 38.;
 static const Double_t eTmin   = 9.;
 static const Double_t eTmax   = 15.;
 static const Double_t hTrgMax = 0.9;
 
 // these don't need to be changed
-static const Int_t    beam   = 0;       // 0 = "pp", 1 = "AuAu"
-static const Int_t    trig   = 2;       // 0 = "gamma-dir", 1 = "gamma-rich", 2 = "pi0"
-static const Int_t    nToy   = 10;      // used to calculate covariances
-static const Int_t    nMC    = 100000;  // number of MC iterations for backfolding
-static const Double_t energy = 200.;    // sqrt(s)
-static const Double_t bPrior = 0.1;     // normalization of prior
-static const Double_t mPrior = 0.140;   // m-parameter of prior
+static const Int_t    beam   = 0;        // 0 = "pp", 1 = "AuAu"
+static const Int_t    trig   = 2;        // 0 = "gamma-dir", 1 = "gamma-rich", 2 = "pi0"
+static const Int_t    nToy   = 10;       // used to calculate covariances
+static const Int_t    nMC    = 1000000;  // number of MC iterations for backfolding
+static const Double_t energy = 200.;     // sqrt(s)
+static const Double_t bPrior = 0.1;      // normalization of prior
+static const Double_t mPrior = 0.140;    // m-parameter of prior
 
 
 void DoUnfolding() {
@@ -129,6 +131,11 @@ void DoUnfolding() {
   for (Int_t p = 0; p < nP; p++) {
     for (Int_t n = 0; n < nN; n++) {
       for (Int_t t = 0; t < nT; t++) {
+
+        // don't double count priors...
+        const Bool_t isExpo  = (p == 3);
+        const Bool_t isFirst = (n == 0);
+        if (isExpo && !isFirst) continue;
 
         // for file names
         const Double_t nPrior = N[n];
@@ -191,9 +198,9 @@ void DoUnfolding() {
         for (Int_t m = 0; m < nM; m++) {
           for (Int_t k = 0; k < nK; k++) {
 
-            const Int_t    prior  = P[p];
-            const Int_t    method = M[m];
-            const Int_t    kReg   = K[k];
+            const Int_t prior  = P[p];
+            const Int_t method = M[m];
+            const Int_t kReg   = K[k];
 
             // create output name
             TString output(oFile);
@@ -224,7 +231,7 @@ void DoUnfolding() {
             f.SetTriggerInfo(trig, eTmin, eTmax, hTrgMax);
             f.SetJetInfo(type, nRM, rJet, aMin, pTmin);
             f.SetPriorParameters(prior, bPrior, mPrior, nPrior, tPrior);
-            f.SetUnfoldParameters(method, kReg, nMC, nToy);
+            f.SetUnfoldParameters(method, kReg, nMC, nToy, pTmaxU, pTmaxB);
             // do unfolding
             f.Init();
             f.Unfold(chi2u);
