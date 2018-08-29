@@ -118,6 +118,7 @@ private:
   TH1D      *_hBackVsMeasRatio;
   TH1D      *_hUnfoldVsPriRatio;
   TH1D      *_hSmearVsMeasRatio;
+  TH1D      *_hUnfoldVsMeasRatio;
   TH2D      *_hResponse;
   TFile     *_fOut;
   TString   *_sEvnt;

@@ -26,7 +26,6 @@ void StJetFolder::CreateLabel() {
   _label -> AddText(_sEvnt -> Data());
   _label -> AddText(_sTrig -> Data());
   _label -> AddText(_sJet1 -> Data());
-  _label -> AddText(_sJet2 -> Data());
   _label -> AddText(_sJet3 -> Data()); 
 
 }  // end 'Createlabel()'
@@ -46,7 +45,8 @@ void StJetFolder::CreatePlots() {
   const Int_t    cS  = 860;
   const Int_t    cBM = 810;
   const Int_t    cUP = 860;
-  const Int_t    cSM = 418;
+  const Int_t    cSM = 618;
+  const Int_t    cUM = 617;
   const Int_t    cL  = 1;
   // histogram marker styles
   const Int_t    mM = 29;
@@ -79,7 +79,7 @@ void StJetFolder::CreatePlots() {
   const double_t y2lo = 6.5;
   // axis titles
   const TString sX("p_{T}^{jet} [GeV/c]");
-  const TString sYup("(1/N_{trg}) dN_{jet}/d(p_{T}^{reco} #eta^{jet}) [GeV/c]^{-1}");
+  const TString sYup("(1/N^{trg}) dN^{jet}/d(p_{T}^{reco} #eta^{jet}) [GeV/c]^{-1}");
   const TString sYlo1("ratio");
 
 
@@ -135,6 +135,16 @@ void StJetFolder::CreatePlots() {
   lSvM -> SetTextAlign(12);
   lSvM -> AddEntry(_hMeasured, "Measured");
   lSvM -> AddEntry(_hSmeared, "Smeared Prior");
+
+  TLegend *lUvM = new TLegend(0.3, 0.1, 0.5, 0.3);
+  lUvM -> SetFillColor(0);
+  lUvM -> SetFillStyle(0);
+  lUvM -> SetLineColor(0);
+  lUvM -> SetTextColor(1);
+  lUvM -> SetTextFont(42);
+  lUvM -> SetTextAlign(12);
+  lUvM -> AddEntry(_hMeasured, "Measured");
+  lUvM -> AddEntry(_hUnfolded, "Unfolded");
 
 
   // create chi2 texts
@@ -407,6 +417,49 @@ void StJetFolder::CreatePlots() {
   _label -> Draw();
   cSvM   -> Write();
   cSvM   -> Close();
+
+  TCanvas *cUvM = new TCanvas("cUvM", "Unfolded vs. measured", 750, 950);
+  TPad    *pLo4 = new TPad("pLo4", "ratio", 0, 0, 1, 0.35);
+  TPad    *pUp4 = new TPad("pUp4", "unfolded and measured", 0, 0.35, 1, 1);
+  // set plot options
+  pLo4   -> SetFillStyle(4000);
+  pLo4   -> SetFillColor(0);
+  pLo4   -> SetBorderMode(0);
+  pLo4   -> SetFrameBorderMode(0);
+  pLo4   -> SetLeftMargin(0.15);
+  pLo4   -> SetRightMargin(0.05);
+  pLo4   -> SetTopMargin(0.);
+  pLo4   -> SetBottomMargin(0.25);
+  pLo4   -> SetGrid(0, 0);
+  pLo4   -> SetTickx(1);
+  pLo4   -> SetTicky(1);
+  pUp4   -> SetFillStyle(4000);
+  pUp4   -> SetFillColor(0);
+  pUp4   -> SetBorderMode(0);
+  pUp4   -> SetFrameBorderMode(0);
+  pUp4   -> SetLeftMargin(0.15);
+  pUp4   -> SetRightMargin(0.05);
+  pUp4   -> SetTopMargin(0.05);
+  pUp4   -> SetBottomMargin(0.);
+  pUp4   -> SetGrid(0, 0);
+  pUp4   -> SetTickx(1);
+  pUp4   -> SetTicky(1);
+  pUp4   -> SetLogy(1);
+  pLo4   -> Draw();
+  pUp4   -> Draw();
+  // draw histograms
+  pLo4   -> cd();
+  hLo    -> Draw();
+  DrawHistogram(_hUnfoldVsMeasRatio, "PE5 same", cUM, cUM, cUM, mR, lR, fR, 1.);
+  lOne   -> Draw();
+  pUp4   -> cd();
+  hUp    -> Draw();
+  DrawHistogram(_hMeasured, "PE2 same", cM, cM, cM, mM, lM, fM, 1.);
+  DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
+  lUvM   -> Draw();
+  _label -> Draw();
+  cUvM   -> Write();
+  cUvM   -> Close();
 
 
 }  // end 'CreatePlots()'

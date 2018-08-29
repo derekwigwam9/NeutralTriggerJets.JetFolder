@@ -150,18 +150,19 @@ void StJetFolder::Backfold(Double_t &chi2backfold) {
 void StJetFolder::Finish() {
 
   // calculate ratios
-  _hBackVsMeasRatio  = CalculateRatio(_hBackfolded, _hMeasured, "hBackVsMeasRatio");
-  _hUnfoldVsPriRatio = CalculateRatio(_hUnfolded, _hPrior, "hUnfoldVsPriRatio");
-  _hSmearVsMeasRatio = CalculateRatio(_hSmeared, _hMeasured, "hSmearVsMeasRatio");
+  _hBackVsMeasRatio   = CalculateRatio(_hBackfolded, _hMeasured, "hBackVsMeasRatio");
+  _hUnfoldVsPriRatio  = CalculateRatio(_hUnfolded, _hPrior, "hUnfoldVsPriRatio");
+  _hSmearVsMeasRatio  = CalculateRatio(_hSmeared, _hMeasured, "hSmearVsMeasRatio");
+  _hUnfoldVsMeasRatio = CalculateRatio(_hUnfolded, _hMeasured, "hUnfoldVsMeasRatio");
   PrintInfo(9);
 
   // set names
-  _hPrior            -> SetName("hPrior");
-  _hSmeared          -> SetName("hSmeared");
-  _hMeasured         -> SetName("hMeasured");
-  _hUnfolded         -> SetName("hUnfolded");
-  _hEfficiency       -> SetName("hEfficiency");
-  _hResponse         -> SetName("hResponse");
+  _hPrior      -> SetName("hPrior");
+  _hSmeared    -> SetName("hSmeared");
+  _hMeasured   -> SetName("hMeasured");
+  _hUnfolded   -> SetName("hUnfolded");
+  _hEfficiency -> SetName("hEfficiency");
+  _hResponse   -> SetName("hResponse");
 
 
   CreateLabel();
@@ -169,20 +170,21 @@ void StJetFolder::Finish() {
   PrintInfo(11);
 
   // save and close file
-  _fOut              -> cd();
-  _hPrior            -> Write();
-  _hSmeared          -> Write();
-  _hMeasured         -> Write();
-  _hUnfolded         -> Write();
-  _hNormalize        -> Write();
-  _hBackfolded       -> Write();
-  _hBackVsMeasRatio  -> Write();
-  _hUnfoldVsPriRatio -> Write();
-  _hSmearVsMeasRatio -> Write();
-  _hEfficiency       -> Write();
-  _hResponse         -> Write();
-  _label             -> Write();
-  _fOut              -> Close();
+  _fOut               -> cd();
+  _hPrior             -> Write();
+  _hSmeared           -> Write();
+  _hMeasured          -> Write();
+  _hUnfolded          -> Write();
+  _hNormalize         -> Write();
+  _hBackfolded        -> Write();
+  _hBackVsMeasRatio   -> Write();
+  _hUnfoldVsPriRatio  -> Write();
+  _hSmearVsMeasRatio  -> Write();
+  _hUnfoldVsMeasRatio -> Write();
+  _hEfficiency        -> Write();
+  _hResponse          -> Write();
+  _label              -> Write();
+  _fOut               -> Close();
   PrintInfo(12);
 
 }  // end 'Finish()'
