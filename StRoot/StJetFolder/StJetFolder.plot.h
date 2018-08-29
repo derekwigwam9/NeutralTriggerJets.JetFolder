@@ -5,7 +5,7 @@
 // This class handles the unfolding of a provided spectrum.  This file
 // encapsulates various routines associated with plotting results.
 //
-// Last updated: 06.04.2018
+// Last updated: 08.23.2018
 
 
 #pragma once
@@ -71,8 +71,6 @@ void StJetFolder::CreatePlots() {
   const Int_t    fS = 0;
   const Int_t    fR = 0;
   // histogram dimensions
-  const Int_t    nYup = 10000;
-  const Int_t    nYlo = 80;
   const Double_t x1   = -10.;
   const Double_t x2   = 70.;
   const Double_t y1up = 0.0000005;
@@ -81,7 +79,7 @@ void StJetFolder::CreatePlots() {
   const double_t y2lo = 6.5;
   // axis titles
   const TString sX("p_{T}^{jet} [GeV/c]");
-  const TString sYup("(1/N_{trg}) dN_{jet}/(dp_{T}^{jet} d#eta^{jet}) [GeV/c]^{-1}");
+  const TString sYup("(1/N_{trg}) dN_{jet}/d(p_{T}^{reco} #eta^{jet}) [GeV/c]^{-1}");
   const TString sYlo1("ratio");
 
 
@@ -184,7 +182,7 @@ void StJetFolder::CreatePlots() {
   const TString  *sUp = CreateTitle();
 
   Int_t  nX  = (Int_t) ((x2 - x1) * wM);
-  TH2D  *hUp = new TH2D("hUpper", "", nX, x1, x2, nYup, y1up, y2up);
+  TH1D  *hUp = new TH1D("hUpper", "", nX, x1, x2);
   hUp -> GetXaxis() -> SetTitle("");
   hUp -> GetXaxis() -> SetTitleFont(42);
   hUp -> GetXaxis() -> SetTitleSize(0.04);
@@ -199,11 +197,12 @@ void StJetFolder::CreatePlots() {
   hUp -> GetYaxis() -> CenterTitle(true);
   hUp -> GetYaxis() -> SetLabelFont(42);
   hUp -> GetYaxis() -> SetLabelSize(0.04);
+  hUp -> GetYaxis() -> SetRangeUser(y1up, y2up);
   hUp -> SetTitle(sUp -> Data());
   hUp -> SetTitleFont(42);
 
   Int_t nD  = (Int_t) y2lo;
-  TH2D *hLo = new TH2D("hLower", "", nX, x1, x2, nYlo, y1lo, y2lo);
+  TH1D *hLo = new TH1D("hLower", "", nX, x1, x2);
   hLo -> GetXaxis() -> SetTitle(sX);
   hLo -> GetXaxis() -> SetTitleFont(42);
   hLo -> GetXaxis() -> SetTitleSize(0.074);
@@ -219,6 +218,7 @@ void StJetFolder::CreatePlots() {
   hLo -> GetYaxis() -> SetLabelFont(42);
   hLo -> GetYaxis() -> SetLabelSize(0.074);
   hLo -> GetYaxis() -> SetNdivisions(nD, 5, 0);
+  hLo -> GetYaxis() -> SetRangeUser(y1lo, y2lo);
 
 
   // create line
@@ -235,7 +235,7 @@ void StJetFolder::CreatePlots() {
   pLoA   -> SetFillStyle(4000);
   pLoA   -> SetFillColor(0);
   pLoA   -> SetBorderMode(0);
-  pLoA   -> SetFrameBorderMode(2);
+  pLoA   -> SetFrameBorderMode(0);
   pLoA   -> SetLeftMargin(0.15);
   pLoA   -> SetRightMargin(0.05);
   pLoA   -> SetTopMargin(0.);
@@ -246,7 +246,7 @@ void StJetFolder::CreatePlots() {
   pUpA   -> SetFillStyle(4000);
   pUpA   -> SetFillColor(0);
   pUpA   -> SetBorderMode(0);
-  pUpA   -> SetFrameBorderMode(2);
+  pUpA   -> SetFrameBorderMode(0);
   pUpA   -> SetLeftMargin(0.15);
   pUpA   -> SetRightMargin(0.05);
   pUpA   -> SetTopMargin(0.05);
@@ -260,8 +260,8 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLoA   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hUnfoldVsPriRatio, "PE6 same", cUP, cUP, cUP, mR, lR, fR, 1.);
-  DrawHistogram(_hBackVsMeasRatio, "PE6 same", cBM, cBM, cBM, mR, lR, fR, 1.);
+  DrawHistogram(_hUnfoldVsPriRatio, "PE5 same", cUP, cUP, cUP, mR, lR, fR, 1.);
+  DrawHistogram(_hBackVsMeasRatio, "PE5 same", cBM, cBM, cBM, mR, lR, fR, 1.);
   lUvB   -> Draw();
   lOne   -> Draw();
   pChi2U -> Draw();
@@ -269,8 +269,8 @@ void StJetFolder::CreatePlots() {
   pUpA   -> cd();
   hUp    -> Draw();
   DrawHistogram(_hMeasured, "PE2 same", cM, cM, cM, mM, lM, fM, 1.);
-  DrawHistogram(_hUnfolded, "PE6 same", cU, cU, cU, mU, lU, fU, 1.);
-  DrawHistogram(_hBackfolded, "PE6 same", cB, cB, cB, mB, lB, fB, 1.);
+  DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
+  DrawHistogram(_hBackfolded, "PE5 same", cB, cB, cB, mB, lB, fB, 1.);
   DrawHistogram(_hPrior, "PE2 same", cP, cP, cP, mP, lP, fP, 1.);
   lAll   -> Draw();
   _label -> Draw();
@@ -284,7 +284,7 @@ void StJetFolder::CreatePlots() {
   pLo1   -> SetFillStyle(4000);
   pLo1   -> SetFillColor(0);
   pLo1   -> SetBorderMode(0);
-  pLo1   -> SetFrameBorderMode(2);
+  pLo1   -> SetFrameBorderMode(0);
   pLo1   -> SetLeftMargin(0.15);
   pLo1   -> SetRightMargin(0.05);
   pLo1   -> SetTopMargin(0.);
@@ -295,7 +295,7 @@ void StJetFolder::CreatePlots() {
   pUp1   -> SetFillStyle(4000);
   pUp1   -> SetFillColor(0);
   pUp1   -> SetBorderMode(0);
-  pUp1   -> SetFrameBorderMode(2);
+  pUp1   -> SetFrameBorderMode(0);
   pUp1   -> SetLeftMargin(0.15);
   pUp1   -> SetRightMargin(0.05);
   pUp1   -> SetTopMargin(0.05);
@@ -309,13 +309,13 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo1   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hBackVsMeasRatio, "PE6 same", cBM, cBM, cBM, mR, lR, fR, 1.);
+  DrawHistogram(_hBackVsMeasRatio, "PE5 same", cBM, cBM, cBM, mR, lR, fR, 1.);
   lOne   -> Draw();
   pChi2B -> Draw();
   pUp1   -> cd();
   hUp    -> Draw();
   DrawHistogram(_hMeasured, "PE2 same", cM, cM, cM, mM, lM, fM, 1.);
-  DrawHistogram(_hBackfolded, "PE6 same", cB, cB, cB, mB, lB, fB, 1.);
+  DrawHistogram(_hBackfolded, "PE5 same", cB, cB, cB, mB, lB, fB, 1.);
   lBvM   -> Draw();
   _label -> Draw();
   cBvM   -> Write();
@@ -328,7 +328,7 @@ void StJetFolder::CreatePlots() {
   pLo2   -> SetFillStyle(4000);
   pLo2   -> SetFillColor(0);
   pLo2   -> SetBorderMode(0);
-  pLo2   -> SetFrameBorderMode(2);
+  pLo2   -> SetFrameBorderMode(0);
   pLo2   -> SetLeftMargin(0.15);
   pLo2   -> SetRightMargin(0.05);
   pLo2   -> SetTopMargin(0.);
@@ -339,7 +339,7 @@ void StJetFolder::CreatePlots() {
   pUp2   -> SetFillStyle(4000);
   pUp2   -> SetFillColor(0);
   pUp2   -> SetBorderMode(0);
-  pUp2   -> SetFrameBorderMode(2);
+  pUp2   -> SetFrameBorderMode(0);
   pUp2   -> SetLeftMargin(0.15);
   pUp2   -> SetRightMargin(0.05);
   pUp2   -> SetTopMargin(0.05);
@@ -353,13 +353,13 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo2   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hUnfoldVsPriRatio, "PE6 same", cUP, cUP, cUP, mR, lR, fR, 1.);
+  DrawHistogram(_hUnfoldVsPriRatio, "PE5 same", cUP, cUP, cUP, mR, lR, fR, 1.);
   lOne   -> Draw();
   pChi2U -> Draw();
   pUp2   -> cd();
   hUp    -> Draw();
-  DrawHistogram(_hUnfolded, "PE2 same", cU, cU, cU, mU, lU, fU, 1.);
-  DrawHistogram(_hPrior, "PE6 same", cP, cP, cP, mP, lP, fP, 1.);
+  DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
+  DrawHistogram(_hPrior, "PE2 same", cP, cP, cP, mP, lP, fP, 1.);
   lPvU   -> Draw();
   _label -> Draw();
   cPvU   -> Write();
@@ -372,7 +372,7 @@ void StJetFolder::CreatePlots() {
   pLo3   -> SetFillStyle(4000);
   pLo3   -> SetFillColor(0);
   pLo3   -> SetBorderMode(0);
-  pLo3   -> SetFrameBorderMode(2);
+  pLo3   -> SetFrameBorderMode(0);
   pLo3   -> SetLeftMargin(0.15);
   pLo3   -> SetRightMargin(0.05);
   pLo3   -> SetTopMargin(0.);
@@ -383,7 +383,7 @@ void StJetFolder::CreatePlots() {
   pUp3   -> SetFillStyle(4000);
   pUp3   -> SetFillColor(0);
   pUp3   -> SetBorderMode(0);
-  pUp3   -> SetFrameBorderMode(2);
+  pUp3   -> SetFrameBorderMode(0);
   pUp3   -> SetLeftMargin(0.15);
   pUp3   -> SetRightMargin(0.05);
   pUp3   -> SetTopMargin(0.05);

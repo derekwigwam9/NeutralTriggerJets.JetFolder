@@ -35,7 +35,7 @@ void StJetFolder::PrintInfo(const Int_t code) {
            << endl;
       cout << "    Unfolding parameters set...\n"
            << "      method = " << _method << ", k = " << _kReg << "\n"
-           << "      nMc = " << _nMC << ", nToy = " << _nToy
+           << "      nMc = " << _nMC << ", nToy = " << _nToy << "\n"
            << "      uMax = " << _uMax << ", bMax = " << _bMax
            << endl;
       break;

@@ -5,7 +5,7 @@
 // This class handles the unfolding of a provided spectrum.  This file
 // encapsulates I/O routines.
 //
-// Last updated: 07.15.2018
+// Last updated: 08.23.2018
 
 
 #pragma once
@@ -181,24 +181,22 @@ void StJetFolder::SetEventInfo(const Int_t beam, const Double_t energy) {
 
 void StJetFolder::SetTriggerInfo(const Int_t trigger, const Double_t eTmin, const Double_t eTmax, const Double_t hMax) {
 
+  // no. of decimals
   const Int_t nDecE = 1;
-  const Int_t nDecH = 1;
 
 
   TString tTxt("");
   TString eStr("");
   TString eTxt("");
-  TString hStr("");
-  TString hTxt("");
   switch (trigger) {
     case 0:
-      tTxt = "#gamma_{dir}-trigger, ";
+      tTxt = "#gamma^{dir} trigger, ";
       break;
     case 1:
-      tTxt = "#gamma_{rich}-trigger, ";
+      tTxt = "#gamma^{rich} trigger, ";
       break;
     case 2:
-      tTxt = "#pi^{0}-trigger, ";
+      tTxt = "#pi^{0} trigger, ";
       break;
   }
 
@@ -212,17 +210,11 @@ void StJetFolder::SetTriggerInfo(const Int_t trigger, const Double_t eTmin, cons
   ResizeString(eStr, nDecE);
   eTxt.Append(", ");
   eTxt.Append(eStr);
-  eTxt.Append(") GeV, ");
-
-  hStr += hMax;
-  ResizeString(hStr, nDecH);
-  hTxt.Append("|#eta^{trg}| < ");
-  hTxt.Append(hStr);
+  eTxt.Append(") GeV");
 
   // combine strings
   TString trig(tTxt);
   trig.Append(eTxt);
-  trig.Append(hTxt);
   _sTrig = new TString(trig);
 
 
