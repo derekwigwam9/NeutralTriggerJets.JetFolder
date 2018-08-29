@@ -16,6 +16,7 @@
 //               0 = no unfolding
 //               1 = bayesian
 //               2 = SVD
+//               3 = bin-by-bin
 //   kReg   -- regularization parameter (1~5 is usually
 //             good, anything more will be too sensitive
 //             to statistical fluctuations)
@@ -49,26 +50,24 @@ class StJetFolder;
 
 
 // input and output files
-static const TString pFile("input/pp200r9embed.pTbinRes.et915vz55.r05a065rm1chrg.root");
-static const TString sFile("input/pp200r9embed.pTbinRes.et915vz55.r05a065rm1chrg.root");
-//static const TString mFile("input/pp200r9embed.pTbinRes.et915vz55.r05a065rm1chrg.root");
-static const TString mFile("input/pp200r9.pTbinRes.et915vz55.r05a065rm1chrg.root");
-static const TString eFile("input/pp200r9embed.pTbinRes.et915vz55.r05a065rm1chrg.root");
-static const TString rFile("input/pp200r9embed.pTbinRes.et915vz55.r05a065rm1chrg.root");
-static const TString oFile("pp200r9.methodSystematic.et915vz55.r05a065rm1chrg");
+static const TString pFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
+static const TString sFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
+static const TString mFile("input/pp200r9.pTbinRes.et911vz55.r02a005rm1chrg.d16m8y2018.root");
+static const TString eFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
+static const TString rFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
+static const TString oFile("pp200r9.binByBinTest.et911vz55gam.r02a005rm1chrg");
 // input namecycles
 static const TString pName("hSumParAll");
 static const TString sName("hSumDetAll");
-//static const TString  mName("hSumDetAll");
-static const TString mName("Pi0/hJetPtCorrP");
+static const TString mName("Gam/hJetPtCorrG");
 static const TString eName("hEfficiencyAll");
 static const TString rName("hResponseAll");
 
 // unfolding parameters (to loop over)
-static const Int_t nM  = 2;
-static const Int_t M[] = {1, 2};
-static const Int_t nK  = 15;
-static const Int_t K[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+static const Int_t nM  = 1;
+static const Int_t M[] = {2};
+static const Int_t nK  = 1;
+static const Int_t K[] = {10};
 // prior parameters (to loop over)
 static const Int_t    nP  = 1;
 static const Int_t    nN  = 1;
@@ -87,7 +86,7 @@ static const Double_t pTmin   = 0.2;
 static const Double_t pTmaxU  = 47.;
 static const Double_t pTmaxB  = 38.;
 static const Double_t eTmin   = 9.;
-static const Double_t eTmax   = 15.;
+static const Double_t eTmax   = 11.;
 static const Double_t hTrgMax = 0.9;
 
 // these don't need to be changed
@@ -133,8 +132,10 @@ void DoUnfolding() {
       for (Int_t t = 0; t < nT; t++) {
 
         // don't double count priors...
+        const Bool_t isPyth  = (p == 0);
         const Bool_t isExpo  = (p == 3);
         const Bool_t isFirst = (n == 0);
+        if (isPyth && !isFirst) continue;
         if (isExpo && !isFirst) continue;
 
         // for file names
@@ -163,30 +164,42 @@ void DoUnfolding() {
         sChi2 += ".performance.root";
 
         TFile *fChi2 = new TFile(sChi2.Data(), "recreate");
-        TH1D  *hBayUnfold    = new TH1D(sBayU.Data(), "Bayesian Algorithm", nK, K[0], K[nK - 1] + 1);
-        TH1D  *hBayBackfold  = new TH1D(sBayB.Data(), "Bayesian Algorithm", nK, K[0], K[nK - 1] + 1);
-        TH1D  *hSvdUnfold    = new TH1D(sSvdU.Data(), "SVD Algorithm", nK, K[0], K[nK - 1] + 1);
-        TH1D  *hSvdBackfold  = new TH1D(sSvdB.Data(), "SVD Algorithm", nK, K[0], K[nK - 1] + 1);
+        TH1D  *hBayUnfold    = new TH1D(sBayU.Data(), "", nK, K[0], K[nK - 1] + 1);
+        TH1D  *hBayBackfold  = new TH1D(sBayB.Data(), "", nK, K[0], K[nK - 1] + 1);
+        TH1D  *hSvdUnfold    = new TH1D(sSvdU.Data(), "", nK, K[0], K[nK - 1] + 1);
+        TH1D  *hSvdBackfold  = new TH1D(sSvdB.Data(), "", nK, K[0], K[nK - 1] + 1);
         hBayUnfold   -> SetTitleFont(42);
         hBayUnfold   -> GetXaxis() -> SetTitle(sChiX.Data());
+        hBayUnfold   -> GetXaxis() -> SetTitleOffset(1.);
         hBayUnfold   -> GetXaxis() -> SetTitleFont(42);
+        hBayUnfold   -> GetXaxis() -> SetLabelFont(42);
         hBayUnfold   -> GetYaxis() -> SetTitle(sChiYU.Data());
         hBayUnfold   -> GetYaxis() -> SetTitleFont(42);
+        hBayUnfold   -> GetYaxis() -> SetLabelFont(42);
         hBayBackfold -> SetTitleFont(42);
         hBayBackfold -> GetXaxis() -> SetTitle(sChiX.Data());
+        hBayBackfold -> GetXaxis() -> SetTitleOffset(1.);
         hBayBackfold -> GetXaxis() -> SetTitleFont(42);
+        hBayBackfold -> GetXaxis() -> SetLabelFont(42);
         hBayBackfold -> GetYaxis() -> SetTitle(sChiYB.Data());
         hBayBackfold -> GetYaxis() -> SetTitleFont(42);
+        hBayBackfold -> GetYaxis() -> SetLabelFont(42);
         hSvdUnfold   -> SetTitleFont(42);
         hSvdUnfold   -> GetXaxis() -> SetTitle(sChiX.Data());
+        hSvdUnfold   -> GetXaxis() -> SetTitleOffset(1.);
         hSvdUnfold   -> GetXaxis() -> SetTitleFont(42);
+        hSvdUnfold   -> GetXaxis() -> SetLabelFont(42);
         hSvdUnfold   -> GetYaxis() -> SetTitle(sChiYU.Data());
         hSvdUnfold   -> GetYaxis() -> SetTitleFont(42);
+        hSvdUnfold   -> GetYaxis() -> SetLabelFont(42);
         hSvdBackfold -> SetTitleFont(42);
         hSvdBackfold -> GetXaxis() -> SetTitle(sChiX.Data());
+        hSvdBackfold -> GetXaxis() -> SetTitleOffset(1.);
         hSvdBackfold -> GetXaxis() -> SetTitleFont(42);
+        hSvdBackfold -> GetXaxis() -> SetLabelFont(42);
         hSvdBackfold -> GetYaxis() -> SetTitle(sChiYB.Data());
         hSvdBackfold -> GetYaxis() -> SetTitleFont(42);
+        hSvdBackfold -> GetYaxis() -> SetLabelFont(42);
         hBayUnfold   -> Sumw2();
         hBayBackfold -> Sumw2();
         hSvdUnfold   -> Sumw2();
@@ -209,7 +222,7 @@ void DoUnfolding() {
             output += "m";
             output += method;
             output += "k";
-            output += k;
+            output += kReg;
             output += "n";
             output += Ntxt;
             output += "t";
@@ -266,6 +279,8 @@ void DoUnfolding() {
                 hSvdUnfold   -> SetBinError(iReg, 0.);
                 hSvdBackfold -> SetBinContent(iReg, chi2b);
                 hSvdBackfold -> SetBinError(iReg, 0.);
+                break;
+              default:
                 break;
             }
 
