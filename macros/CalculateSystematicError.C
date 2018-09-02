@@ -25,12 +25,14 @@ using namespace std;
 
 // global constants
 static const UInt_t NPad(2);
-static const UInt_t NSys(25);
+static const UInt_t NSys(2);
 static const UInt_t NPlot(2);
 static const UInt_t NRebin(2);
 static const UInt_t NRebinVar(16);
 static const Bool_t DoRebin(false);
+static const Bool_t UseAverage(false);
 static const Bool_t DoVariableRebin(false);
+static const Bool_t DoGammaSubtraction(true);
 
 
 
@@ -41,31 +43,43 @@ void CalculateSystematicError() {
   cout << "\n  Plotting unfolded distribution..." << endl;
 
   // io parameters
-  const TString sOut("systematics.varyingPriorExpo.et915vz55.r02a005rm1chrg.d26m27y2018.root");
-  const TString sInD("output/CollabMeetingJul2018_FollowUp/pp200r9.resBinningCheck.notScalingByBinWidth.et915vz55.r02a005rm1chrg.p0m1k2n0t0.root");
+  const TString sOut("systematics.varyingTrkEff.et911vz55gd.r02a005rm1chrg.d2m9y2018.root");
+  const TString sInD("sys_trkEff/pp200r9.trkEffDefault.et911vz55gam.r02a005rm1chrg.p0m2k11n58t4.root");
   const TString sHistD("hUnfolded");
-  const TString sInS[NSys]   = {"pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k4n38t4.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k2n38t14.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n38t24.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k4n38t34.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n38t44.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k4n48t4.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n48t14.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k2n48t24.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k4n48t34.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n48t44.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k4n58t4.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n58t14.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k2n58t24.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n58t34.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n58t44.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n68t4.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n68t14.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n68t24.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k2n68t34.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n68t44.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n78t4.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n78t14.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n78t24.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k3n78t34.root", "pp200r9.priorSystematic.et915vz55.r02a005rm1chrg.p3m1k1n78t44.root"};
-  const TString sHistS[NSys] = {"hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded"};
+  const TString sInS[NSys]   = {"sys_trkEff/pp200r9.trkEffM5.et911vz55gam.r02a005rm1chrg.p0m2k9n58t4.root", "sys_trkEff/pp200r9.trkEffP5.et911vz55gam.r02a005rm1chrg.p0m2k10n58t4.root"};
+  const TString sHistS[NSys] = {"hUnfolded", "hUnfolded"};
 
   // plot parameters
   const TString sTitle("");
   const TString sNameD("hDefault");
+  const TString sNameA("hAverage");
   const TString sTitleX("p_{T}^{reco} = p_{T}^{jet} - #rhoA^{jet} [GeV/c]");
   const TString sTitleY("(1/N^{trg}) dN^{jet}/d(p_{T}^{reco} #eta^{jet}) [GeV/c]^{-1}");
-  const TString sTitleR("|var. - def.| / def.");
-  const TString sLabelD("default (Pythia6, h^{#pm} trigger)");
-  const TString sNameS[NSys]  = {"hSys_expN38T4", "hSys_expN38T14", "hSys_expN38T24", "hSys_expN48T34", "hSys_expN38T44", "hSys_expN48T4", "hSys_expN48T14", "hSys_expN48T24", "hSys_expN48T34", "hSys_expN48T44", "hSys_expN58T4", "hSys_expN58T14", "hSys_expN58T24", "hSys_expN58T34", "hSys_expN58T44", "hSys_expN68T4", "hSys_expN68T14", "hSys_expN68T24", "hSys_expN68T34", "hSys_expN68T44", "hSys_expN78T4", "hSys_expN78T14", "hSys_expN78T24", "hSys_expN78T34", "hSys_expN78T44"};
-  const TString sNameR[NSys]  = {"hDif_expN38T4", "hDif_expN38T14", "hDif_expN38T24", "hDif_expN48T34", "hDif_expN38T44", "hDif_expN48T4", "hDif_expN48T14", "hDif_expN48T24", "hDif_expN48T34", "hDif_expN48T44", "hDif_expN58T4", "hDif_expN58T14", "hDif_expN58T24", "hDif_expN58T34", "hDif_expN58T44", "hDif_expN68T4", "hDif_expN68T14", "hDif_expN68T24", "hDif_expN68T34", "hDif_expN68T44", "hDif_expN78T4", "hDif_expN78T14", "hDif_expN78T24", "hDif_expN78T34", "hDif_expN78T44"};
-  const TString sLabelS[NSys] = {"Expo: n = 3.8, t = 0.4", "Expo: n = 3.8, t = 1.4", "Expo: n = 3.8, t = 2.4", "Expo: n = 3.8, t = 3.4", "Expo: n = 3.8, t = 4.4", "Expo: n = 4.8, t = 0.4", "Expo: n = 4.8, t = 1.4", "Expo: n = 4.8, t = 2.4", "Expo: n = 4.8, t = 3.4", "Expo: n = 4.8, t = 4.4", "Expo: n = 5.8, t = 0.4", "Expo: n = 5.8, t = 1.4", "Expo: n = 5.8, t = 2.4", "Expo: n = 5.8, t = 3.4", "Expo: n = 5.8, t = 4.4", "Expo: n = 6.8, t = 0.4", "Expo: n = 6.8, t = 1.4", "Expo: n = 6.8, t = 2.4", "Expo: n = 6.8, t = 3.4", "Expo: n = 6.8, t = 4.4", "Expo: n = 7.8, t = 0.4", "Expo: n = 7.8, t = 1.4", "Expo: n = 7.8, t = 2.4", "Expo: n = 7.8, t = 3.4", "Expo: n = 7.8, t = 4.4"};
+  const TString sTitleRD("|var. - def.| / def.");
+  const TString sTitleRA("|var. - avg.| / avg.");
+  const TString sLabelD("default (#epsilon_{trk} #pm 0%)");
+  const TString sLabelA("average");
+  const TString sNameS[NSys]  = {"hSys_TrkEffMinus5", "hSys_TrkEffPlus5"};
+  const TString sNameR[NSys]  = {"hDif_TrkEffMinus5", "hDif_TrkEffPlus5"};
+  const TString sLabelS[NSys] = {"#epsilon_{trk} - 5%", "#epsilon_{trk} + 5%"};
+
+  // subtraction parameters
+  const TString  sDefPi0("sys_trkEff/pp200r9.trkEffDefault.et911vz55pi0.r02a005rm1chrg.p0m2k11n58t4.root");
+  const TString  sHistDefPI0("hUnfolded");
+  const TString  sInPi0[NSys]   = {"sys_trkEff/pp200r9.trkEffM5.et911vz55pi0.r02a005rm1chrg.p0m2k9n58t4.root", "sys_trkEff/pp200r9.trkEffP5.et911vz55pi0.r02a005rm1chrg.p0m2k10n58t4.root"};
+  const TString  sHistPi0[NSys] = {"hUnfolded", "hUnfolded"};
+  const Double_t gammaPurity(0.569875);
 
   // text parameters
   const TString sSys("pp-collisions, #sqrt{s} = 200 GeV");
-  const TString sTrg("#pi^{0} trigger, E_{T}^{trg} #in (9, 15) GeV");
+  const TString sTrg("#gamma^{dir} trigger, E_{T}^{trg} #in (9, 11) GeV");
   const TString sJet("anti-k_{T}, R = 0.2");
   const TString sTyp("#bf{charged jets}");
 
   // misc parameters
-  const Double_t plotRange[NPlot]    = {0., 30.};
+  const UInt_t  fColS[NSys]          = {806, 886};
+  const UInt_t  fFilS[NSys]          = {3345, 3354};
+  const Double_t plotRange[NPlot]    = {-1., 37.};
   const Double_t varRebin[NRebinVar] = {0., 1., 2., 3., 4., 5., 7., 9., 11., 13., 15., 18., 21., 24., 27., 30.};
 
 
@@ -115,6 +129,36 @@ void CalculateSystematicError() {
     hSys[iSys] -> GetXaxis() -> SetRangeUser(plotRange[0], plotRange[1]);
   }
   cout << "    Grabbed histograms." << endl;
+
+
+  // do gamma-subtraction (if need be)
+  TFile *fPi0[NSys];
+  TH1D  *hPi0[NSys];
+  TH1D  *hGam[NSys];
+  if (DoGammaSubtraction) {
+    for (UInt_t iSys = 0; iSys < NSys; iSys++) {
+      fPi0[iSys] = new TFile(sInPi0[iSys].Data(), "read");
+      if (!fPi0[iSys]) {
+        cerr << "PANIC: couldn't open a pi0 file!\n"
+             << "       fInPi0[" << iSys << "] = " << fInPi0[iSys]
+             << endl;
+        return;
+      }
+      hPi0[iSys] = (TH1D*) fPi0[iSys] -> Get(sHistPi0[iSys].Data());
+      hGam[iSys] = (TH1D*) hSys[iSys] -> Clone();
+      if (!hPi0[iSys] || !hGam[iSys]) {
+        cerr << "PANIC: couldn't grab pi0 or gamma histogram!\n"
+             << "       hPi0[" << iSys << "] = " << hPi0[iSys] << ", hGam[" << iSys << "] = " << hGam[iSys]
+             << endl;
+        return;
+      }
+      hPi0[iSys] -> Scale(1. - gammaPurity);
+      hSys[iSys] -> Add(hGam[iSys], hPi0[iSys], 1., -1.);
+      hSys[iSys] -> Scale(1. / gammaPurity);
+      fPi0[iSys] -> Close();
+    }  // end systematic loop
+    cout << "    Did gamma subtraction." << endl;
+  }
 
 
   // rebin (if need be)
@@ -175,6 +219,18 @@ void CalculateSystematicError() {
     cout << "    Rebinned histograms (variable)." << endl;
   }
 
+
+  // calculate average
+  TH1D *hAverage = (TH1D*) hDefault -> Clone();
+  hAverage -> SetName(sNameA.Data());
+  hAverage -> Reset("ICE");
+  for (UInt_t iSys = 0; iSys < NSys; iSys++) {
+    hAverage -> Add(hSys[iSys], 1.);
+  }
+  hAverage -> Scale(1. / (Double_t) NSys);
+  cout << "    Calculated average." << endl;
+
+
   // calculate %-difference
   TH1D *hDif[NSys];
   for (UInt_t iSys = 0; iSys < NSys; iSys++) {
@@ -184,9 +240,18 @@ void CalculateSystematicError() {
 
     const UInt_t nBinR = hDif[iSys] -> GetNbinsX();
     for (UInt_t iBinR = 1; iBinR < (nBinR + 1); iBinR++) {
-      const Double_t def = hDefault   -> GetBinContent(iBinR);
-      const Double_t sys = hSys[iSys] -> GetBinContent(iBinR);
-      const Double_t dif = TMath::Abs(def - sys) / def;
+      const Double_t def  = hDefault   -> GetBinContent(iBinR);
+      const Double_t avg  = hAverage   -> GetBinContent(iBinR);
+      const Double_t sys  = hSys[iSys] -> GetBinContent(iBinR);
+      const Double_t difD = TMath::Abs(def - sys) / def;
+      const Double_t difA = TMath::Abs(def - avg) / avg;
+
+      Double_t dif = 0.;
+      if (UseAverage)
+        dif = difA;
+      else
+        dif = difD;
+
       if ((def > 0.) && (dif > 0.)) {
         hDif[iSys] -> SetBinContent(iBinR, 1.);
         hDif[iSys] -> SetBinError(iBinR, dif);
@@ -202,16 +267,25 @@ void CalculateSystematicError() {
 
 
   // set styles
+  TString sTitleR("");
+  if (UseAverage)
+    sTitleR = sTitleRA;
+  else
+    sTitleR = sTitleRD;
+
   const UInt_t  fColD(1);
-  const UInt_t  fMarD(7);
+  const UInt_t  fColA(1);
+  const UInt_t  fMarD(33);
+  const UInt_t  fMarA(8);
   const UInt_t  fMarS(4);
   const UInt_t  fFilD(0);
+  const UInt_t  fFilA(0);
   const UInt_t  fLinD(1);
+  const UInt_t  fLinA(1);
   const UInt_t  fLinS(1);
   const UInt_t  fWidD(1);
+  const UInt_t  fWidA(1);
   const UInt_t  fWidS(1);
-  const UInt_t  fColS[NSys] = {632, 810, 801, 800, 400, 830, 811, 820, 416, 850, 841, 840, 432, 870, 861, 860, 600, 890, 881, 880, 616, 910, 891, 900, 920};
-  const UInt_t  fFilS[NSys] = {3345, 3354, 3345, 3354, 3345, 3354, 3345, 3354, 3345, 3354, 3345, 3354, 3345, 3354, 3345, 3354, 3345, 3354, 3345, 3354, 3345, 3354, 3345, 3354, 3345};
   const UInt_t  fTxt(42);
   const UInt_t  fAln(12);
   const UInt_t  fCnt(1);
@@ -244,6 +318,29 @@ void CalculateSystematicError() {
   hDefault -> GetYaxis() -> SetLabelFont(fTxt);
   hDefault -> GetYaxis() -> SetLabelSize(fLab[1]);
   hDefault -> GetYaxis() -> CenterTitle(fCnt);
+  hAverage -> SetMarkerColor(fColA);
+  hAverage -> SetMarkerStyle(fMarA);
+  hAverage -> SetFillColor(fColA);
+  hAverage -> SetFillStyle(fFilA);
+  hAverage -> SetLineColor(fColA);
+  hAverage -> SetLineStyle(fLinA);
+  hAverage -> SetLineWidth(fWidA);
+  hAverage -> SetTitle(sTitle.Data());
+  hAverage -> SetTitleFont(fTxt);
+  hAverage -> GetXaxis() -> SetTitle(sTitleX.Data());
+  hAverage -> GetXaxis() -> SetTitleFont(fTxt);
+  hAverage -> GetXaxis() -> SetTitleSize(fTit[1]);
+  hAverage -> GetXaxis() -> SetTitleOffset(fOffX[1]);
+  hAverage -> GetXaxis() -> SetLabelFont(fTxt);
+  hAverage -> GetXaxis() -> SetLabelSize(fLab[1]);
+  hAverage -> GetXaxis() -> CenterTitle(fCnt);
+  hAverage -> GetYaxis() -> SetTitle(sTitleY.Data());
+  hAverage -> GetYaxis() -> SetTitleFont(fTxt);
+  hAverage -> GetYaxis() -> SetTitleSize(fTit[1]);
+  hAverage -> GetYaxis() -> SetTitleOffset(fOffY[1]);
+  hAverage -> GetYaxis() -> SetLabelFont(fTxt);
+  hAverage -> GetYaxis() -> SetLabelSize(fLab[1]);
+  hAverage -> GetYaxis() -> CenterTitle(fCnt);
   for (UInt_t iSys = 0; iSys < NSys; iSys++) {
     hSys[iSys] -> SetMarkerColor(fColS[iSys]);
     hSys[iSys] -> SetMarkerStyle(fMarS);
@@ -308,6 +405,8 @@ void CalculateSystematicError() {
   leg -> SetTextFont(fTxt);
   leg -> SetTextAlign(fAln);
   leg -> AddEntry(hDefault, sLabelD.Data());
+  if (UseAverage)
+    leg -> AddEntry(hAverage, sLabelA.Data());
   for (UInt_t iSys = 0; iSys < NSys; iSys++) {
     leg -> AddEntry(hSys[iSys], sLabelS[iSys].Data());
   }
@@ -406,17 +505,20 @@ void CalculateSystematicError() {
     hSys[iSys] -> Draw("E2 SAME");
   }
   hDefault -> Draw("same");
-  leg   -> Draw();
-  txt   -> Draw();
-  fOut  -> cd();
-  cPlot -> Write();
-  cPlot -> Close();
+  if (UseAverage)
+    hAverage -> Draw("same");
+  leg      -> Draw();
+  txt      -> Draw();
+  fOut     -> cd();
+  cPlot    -> Write();
+  cPlot    -> Close();
   cout << "    Made plot." << endl;
 
 
   // close files
   fOut     -> cd();
   hDefault -> Write();
+  hAverage -> Write();
   for (UInt_t iSys = 0; iSys < NSys; iSys++) {
     hSys[iSys] -> Write();
     hDif[iSys] -> Write();
