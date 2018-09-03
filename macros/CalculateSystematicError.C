@@ -30,9 +30,9 @@ static const UInt_t NPlot(2);
 static const UInt_t NRebin(2);
 static const UInt_t NRebinVar(16);
 static const Bool_t DoRebin(false);
-static const Bool_t UseAverage(true);
+static const Bool_t UseAverage(false);
 static const Bool_t DoVariableRebin(false);
-static const Bool_t DoGammaSubtraction(false);
+static const Bool_t DoGammaSubtraction(true);
 
 
 
@@ -66,7 +66,7 @@ void CalculateSystematicError() {
 
   // subtraction parameters
   const TString  sDefPi0("output/AugustUnfolding2018/TrkEffSysR02/pp200r9.trkEffDefault.et911vz55pi0.r02a005rm1chrg.p0m2k11n58t4.root");
-  const TString  sHistDefPI0("hUnfolded");
+  const TString  sHistDefPi0("hUnfolded");
   const TString  sInPi0[NSys]   = {"output/AugustUnfolding2018/TrkEffSysR02/pp200r9.trkEffM5.et911vz55pi0.r02a005rm1chrg.p0m2k9n58t4.root", "output/AugustUnfolding2018/TrkEffSysR02/pp200r9.trkEffP5.et911vz55pi0.r02a005rm1chrg.p0m2k10n58t4.root"};
   const TString  sHistPi0[NSys] = {"hUnfolded", "hUnfolded"};
   const Double_t gammaPurity(0.569875);
@@ -133,10 +133,33 @@ void CalculateSystematicError() {
 
 
   // do gamma-subtraction (if need be)
+  TFile *fDefPi0;
   TFile *fPi0[NSys];
+  TH1D  *hDefPi0;
+  TH1D  *hDefGam;
   TH1D  *hPi0[NSys];
   TH1D  *hGam[NSys];
   if (DoGammaSubtraction) {
+    // subtract default distribtion
+    fDefPi0 = new TFile(sDefPi0.Data(), "read");
+    if (!fDefPi0) {
+      cerr << "PANIC: couldn't open default pi0 file!" << endl;
+      return;
+    }
+    hDefPi0 = (TH1D*) fDefPi0  -> Get(sHistDefPi0.Data());
+    hDefGam = (TH1D*) hDefault -> Clone();
+    if (!hDefPi0 || !hDefGam) {
+      cerr << "PANIC: couldn't grab default pi0 or gamma histogram!\n"
+           << "       hDefPi0 = " << hDefPi0 << ", hDefGam = " << hDefGam
+           << endl;
+      return;
+    }
+    hDefPi0  -> Scale(gammaPurity);
+    hDefault -> Add(hDefGam, hDefPi0, 1., -1.);
+    hDefault -> Scale(1. / (1. - gammaPurity));
+    fDefPi0  -> Close();
+
+    // subtract systematic distributions
     for (UInt_t iSys = 0; iSys < NSys; iSys++) {
       fPi0[iSys] = new TFile(sInPi0[iSys].Data(), "read");
       if (!fPi0[iSys]) {
@@ -153,9 +176,9 @@ void CalculateSystematicError() {
              << endl;
         return;
       }
-      hPi0[iSys] -> Scale(1. - gammaPurity);
+      hPi0[iSys] -> Scale(gammaPurity);
       hSys[iSys] -> Add(hGam[iSys], hPi0[iSys], 1., -1.);
-      hSys[iSys] -> Scale(1. / gammaPurity);
+      hSys[iSys] -> Scale(1. / (1. - gammaPurity));
       fPi0[iSys] -> Close();
     }  // end systematic loop
     cout << "    Did gamma subtraction." << endl;
