@@ -34,7 +34,8 @@ static const UInt_t NRebin(2);
 static const UInt_t NRebinVar(16);
 static const Bool_t DoRebin(false);
 static const Bool_t DoVariableRebin(false);
-static const Bool_t DoGammaSubtraction(true);
+static const Bool_t DoGammaRichPlot(false);
+static const Bool_t DoGammaSubtraction(false);
 
 
 
@@ -45,11 +46,11 @@ void MakeUnfoldedPlot() {
   cout << "\n  Plotting unfolded distribution..." << endl;
 
   // io parameters
-  const TString sOut("unfoldVsPythia.pTbinRes.et1520vz55gam.r02a005rm1chrg.p0m2k10.root");
-  const TString sInU("pp200r9.default.et1520vz55gam.r02a005rm1chrg.p0m2k9n58t4.root");
-  const TString sInP("input/pp200py.pTbinRes.eTtrg1520gam.nTrg500KpTtrk20hTrk1hTrg09.r02a005rm1chrg.d16m8y2018.root");
+  const TString sOut("unfoldVsPythia.checkOn1520with920.et1520vz55gamRich.r02a005rm1chrg.p0m2k10.root");
+  const TString sInU("pp200r9.checkOn1520with920response.et1520vz55gam.r02a005rm1chrg.p0m2k10n58t4.root");
+  const TString sInP("input/pp200py.pTbinRes.eTtrg1520pi0.nTrg500KpTtrk20hTrk1hTrg09.r02a005rm1chrg.d16m8y2018.root");
   const TString sHistU("hUnfolded");
-  const TString sHistP("Gam/hJetPtCorrG");
+  const TString sHistP("Pi0/hJetPtCorrP");
 
   // plot parameters
   const TString sTitle("");
@@ -58,24 +59,33 @@ void MakeUnfoldedPlot() {
   const TString sTitleX("p_{T}^{reco} = p_{T}^{jet} - #rhoA^{jet} [GeV/c]");
   const TString sTitleY("(1/N^{trg}) dN^{jet}/d(p_{T}^{reco} #eta^{jet}) [GeV/c]^{-1}");
   const TString sTitleR("unfold / pythia");
-  const TString sLabelU("unfolded");
-  const TString sLabelP("pythia");
+  const TString sLabelU("SVD, k_{reg} = 10 [#gamma^{rich}]");
+  const TString sLabelP("pythia [#pi^{0}]");
 
   // text parameters
   const TString sSys("pp-collisions, #sqrt{s} = 200 GeV");
-  const TString sTrg("#gamma^{dir} trigger, E_{T}^{trg} #in (15, 20) GeV");
+  const TString sTrg("E_{T}^{trg} #in (15, 20) GeV");
   const TString sJet("anti-k_{T}, R = 0.2");
   const TString sTyp("#bf{charged jets}");
 
   // subtraction parameters
-  const UInt_t   fColP[NHist] = {870, 810, 870};
-  const UInt_t   fColG[NHist] = {870, 810, 870};
-  const TString  sFilePi0("pp200r9.default.et1520vz55pi0.r02a005rm1chrg.p0m2k9n58t4.root");
+  const UInt_t   fFilGR(3017);
+  const UInt_t   fLinGR(1);
+  const UInt_t   fWidGR(1);
+  const UInt_t   fMarGR(4);
+  const UInt_t   fColGR(879);
+  const UInt_t   fColP[NHist] = {859, 921, 859};
+  const UInt_t   fColG[NHist] = {899, 921, 899};
+  const TString  sFileGam("pp200r9.binByBinTest.et911vz55gam.r02a005rm1chrg.p0m3k0n58t4.root");
+  const TString  sFilePi0("pp200r9.binByBinTest.et911vz55pi0.r02a005rm1chrg.p0m3k0n58t4.root");
+  const TString  sHistGam("hUnfolded");
   const TString  sHistPi0("hUnfolded");
-  const Double_t gammaPurity(0.43);
+  const TString  sNameGR("hGammaRich");
+  const TString  sLabelGR("unfolded [#gamma^{rich}]");
+  const Double_t gammaPurity(0.650);
 
   // misc parameters
-  const Double_t plotRange[NPlot]    = {-1., 30.};
+  const Double_t plotRange[NPlot]    = {-1., 37.};
   const Double_t varRebin[NRebinVar] = {0., 1., 2., 3., 4., 5., 7., 9., 11., 13., 15., 18., 21., 24., 27., 30.};
 
 
@@ -108,12 +118,23 @@ void MakeUnfoldedPlot() {
   // do gamma-subtraction (if need be)
   if (DoGammaSubtraction) {
     TFile *fPi0 = new TFile(sFilePi0.Data(), "read");
+    if (!fPi0) {
+      cerr << "PANIC: couldn't open pi0 file!" << endl;
+      return;
+    }
     TH1D  *hPi0 = (TH1D*) fPi0    -> Get(sHistPi0.Data());
     TH1D  *hGam = (TH1D*) hUnfold -> Clone();
-    hPi0    -> Scale(1. - gammaPurity);
+    if (!hPi0 || !hGam) {
+      cerr << "PANIC: couldn't grab pi0 or gamma histogram!\n"
+           << "       hPi0 = " << hPi0 << ", hGam = " << hGam
+           << endl;
+      return;
+    }
+    hPi0    -> Scale(gammaPurity);
     hUnfold -> Add(hGam, hPi0, 1., -1.);
-    hUnfold -> Scale(1. / gammaPurity);
+    hUnfold -> Scale(1. / (1. - gammaPurity));
     fPi0    -> Close();
+    cout << "    Did gamma subtraction." << endl;
   }
 
 
@@ -304,8 +325,8 @@ void MakeUnfoldedPlot() {
   leg -> SetLineStyle(fLinLe);
   leg -> SetTextFont(fTxt);
   leg -> SetTextAlign(fAln);
-  leg -> AddEntry(hUnfold, sLabelU.Data());
   leg -> AddEntry(hPythia, sLabelP.Data());
+  leg -> AddEntry(hUnfold, sLabelU.Data());
   cout << "    Made legend." << endl;
 
   // make text
@@ -390,10 +411,10 @@ void MakeUnfoldedPlot() {
   pPad1   -> Draw();
   pPad2   -> Draw();
   pPad1   -> cd();
-  hRatio  -> Draw("E6");
+  hRatio  -> Draw("E5");
   line    -> Draw();
   pPad2   -> cd();
-  hUnfold -> Draw("E6");
+  hUnfold -> Draw("E5");
   hPythia -> Draw("SAME HIST C");
   leg     -> Draw();
   txt     -> Draw();
