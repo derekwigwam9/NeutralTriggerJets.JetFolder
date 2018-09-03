@@ -30,9 +30,9 @@ static const UInt_t NPlot(2);
 static const UInt_t NRebin(2);
 static const UInt_t NRebinVar(16);
 static const Bool_t DoRebin(false);
-static const Bool_t UseAverage(false);
+static const Bool_t UseAverage(true);
 static const Bool_t DoVariableRebin(false);
-static const Bool_t DoGammaSubtraction(true);
+static const Bool_t DoGammaSubtraction(false);
 
 
 
@@ -43,10 +43,11 @@ void CalculateSystematicError() {
   cout << "\n  Plotting unfolded distribution..." << endl;
 
   // io parameters
-  const TString sOut("systematics.varyingTrkEff.et911vz55gd.r02a005rm1chrg.d2m9y2018.root");
-  const TString sInD("sys_trkEff/pp200r9.trkEffDefault.et911vz55gam.r02a005rm1chrg.p0m2k11n58t4.root");
+  const TString sOut("test.root");
+  //const TString sOut("systematics.varyingTrkEff.et911vz55gd.r02a005rm1chrg.d2m9y2018.root");
+  const TString sInD("output/AugustUnfolding2018/TrkEffSysR02/pp200r9.trkEffDefault.et911vz55gam.r02a005rm1chrg.p0m2k11n58t4.root");
   const TString sHistD("hUnfolded");
-  const TString sInS[NSys]   = {"sys_trkEff/pp200r9.trkEffM5.et911vz55gam.r02a005rm1chrg.p0m2k9n58t4.root", "sys_trkEff/pp200r9.trkEffP5.et911vz55gam.r02a005rm1chrg.p0m2k10n58t4.root"};
+  const TString sInS[NSys]   = {"output/AugustUnfolding2018/TrkEffSysR02/pp200r9.trkEffM5.et911vz55gam.r02a005rm1chrg.p0m2k9n58t4.root", "output/AugustUnfolding2018/TrkEffSysR02/pp200r9.trkEffP5.et911vz55gam.r02a005rm1chrg.p0m2k10n58t4.root"};
   const TString sHistS[NSys] = {"hUnfolded", "hUnfolded"};
 
   // plot parameters
@@ -55,18 +56,18 @@ void CalculateSystematicError() {
   const TString sNameA("hAverage");
   const TString sTitleX("p_{T}^{reco} = p_{T}^{jet} - #rhoA^{jet} [GeV/c]");
   const TString sTitleY("(1/N^{trg}) dN^{jet}/d(p_{T}^{reco} #eta^{jet}) [GeV/c]^{-1}");
-  const TString sTitleRD("|var. - def.| / def.");
-  const TString sTitleRA("|var. - avg.| / avg.");
-  const TString sLabelD("default (#epsilon_{trk} #pm 0%)");
+  const TString sTitleRD("1 + [(var. - def.) / def.]");
+  const TString sTitleRA("1 + [(var. - avg.) / avg.]");
+  const TString sLabelD("default #epsilon_{trk}");
   const TString sLabelA("average");
   const TString sNameS[NSys]  = {"hSys_TrkEffMinus5", "hSys_TrkEffPlus5"};
   const TString sNameR[NSys]  = {"hDif_TrkEffMinus5", "hDif_TrkEffPlus5"};
   const TString sLabelS[NSys] = {"#epsilon_{trk} - 5%", "#epsilon_{trk} + 5%"};
 
   // subtraction parameters
-  const TString  sDefPi0("sys_trkEff/pp200r9.trkEffDefault.et911vz55pi0.r02a005rm1chrg.p0m2k11n58t4.root");
+  const TString  sDefPi0("output/AugustUnfolding2018/TrkEffSysR02/pp200r9.trkEffDefault.et911vz55pi0.r02a005rm1chrg.p0m2k11n58t4.root");
   const TString  sHistDefPI0("hUnfolded");
-  const TString  sInPi0[NSys]   = {"sys_trkEff/pp200r9.trkEffM5.et911vz55pi0.r02a005rm1chrg.p0m2k9n58t4.root", "sys_trkEff/pp200r9.trkEffP5.et911vz55pi0.r02a005rm1chrg.p0m2k10n58t4.root"};
+  const TString  sInPi0[NSys]   = {"output/AugustUnfolding2018/TrkEffSysR02/pp200r9.trkEffM5.et911vz55pi0.r02a005rm1chrg.p0m2k9n58t4.root", "output/AugustUnfolding2018/TrkEffSysR02/pp200r9.trkEffP5.et911vz55pi0.r02a005rm1chrg.p0m2k10n58t4.root"};
   const TString  sHistPi0[NSys] = {"hUnfolded", "hUnfolded"};
   const Double_t gammaPurity(0.569875);
 
@@ -243,8 +244,10 @@ void CalculateSystematicError() {
       const Double_t def  = hDefault   -> GetBinContent(iBinR);
       const Double_t avg  = hAverage   -> GetBinContent(iBinR);
       const Double_t sys  = hSys[iSys] -> GetBinContent(iBinR);
-      const Double_t difD = TMath::Abs(def - sys) / def;
-      const Double_t difA = TMath::Abs(def - avg) / avg;
+      const Double_t raw  = hSys[iSys] -> GetBinError(iBinR);
+      const Double_t rel  = (raw / sys);
+      const Double_t difD = (sys - def) / def;
+      const Double_t difA = (sys - avg) / avg;
 
       Double_t dif = 0.;
       if (UseAverage)
@@ -252,9 +255,11 @@ void CalculateSystematicError() {
       else
         dif = difD;
 
-      if ((def > 0.) && (dif > 0.)) {
-        hDif[iSys] -> SetBinContent(iBinR, 1.);
-        hDif[iSys] -> SetBinError(iBinR, dif);
+      const Double_t val = 1. + dif;
+      const Double_t err = val * rel;
+      if ((def > 0.) && (sys > 0.)) {
+        hDif[iSys] -> SetBinContent(iBinR, val);
+        hDif[iSys] -> SetBinError(iBinR, err);
       }
       else {
         hDif[iSys] -> SetBinContent(iBinR, 0.);
