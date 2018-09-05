@@ -37,50 +37,83 @@ void StJetFolder::CreatePlots() {
   PrintInfo(10);
 
 
+  // determine colors
+  UInt_t cUnfold(0);
+  UInt_t cBackfold(0);
+  switch (_trigger) {
+    case 0:
+      cUnfold   = 899;
+      cBackfold = 896;
+      break;
+    case 1:
+      cUnfold   = 879;
+      cBackfold = 876;
+      break;
+    case 2:
+      cUnfold   = 859;
+      cBackfold = 856;
+      break;
+    default:
+      cUnfold   = 870;
+      cBackfold = 800;
+      break;
+  }
+
   // histogram colors
-  const Int_t    cM  = 810;
-  const Int_t    cU  = 870;
-  const Int_t    cB  = 800;
-  const Int_t    cP  = 860;
-  const Int_t    cS  = 860;
-  const Int_t    cBM = 810;
-  const Int_t    cUP = 860;
-  const Int_t    cSM = 618;
-  const Int_t    cUM = 617;
-  const Int_t    cL  = 1;
+  const Int_t    cM  = 923;
+  const Int_t    cU  = cUnfold;
+  const Int_t    cB  = cBackfold;
+  const Int_t    cP  = 921;
+  const Int_t    cS  = cBackfold;
+  const Int_t    cBM = cBackfold;
+  const Int_t    cUP = cUnfold;
+  const Int_t    cSM = cBackfold;
+  const Int_t    cUM = cUnfold;
+  const Int_t    cSP = cBackfold;
+  const Int_t    cRP = 1;
+  const Int_t    cL  = 923;
   // histogram marker styles
-  const Int_t    mM = 29;
-  const Int_t    mU = 24;
-  const Int_t    mB = 24;
-  const Int_t    mP = 29;
-  const Int_t    mS = 24;
-  const Int_t    mR = 7;
+  const Int_t    mM  = 29;
+  const Int_t    mU  = 24;
+  const Int_t    mB  = 24;
+  const Int_t    mP  = 20;
+  const Int_t    mS  = 24;
+  const Int_t    mR  = 24;
+  const Int_t    mRP = 20;
   // histogram line styles
-  const Int_t    lM = 1;
-  const Int_t    lU = 1;
-  const Int_t    lB = 1;
-  const Int_t    lP = 1;
-  const Int_t    lS = 1;
-  const Int_t    lR = 1;
-  const Int_t    lL = 2;
+  const Int_t    lM  = 1;
+  const Int_t    lU  = 1;
+  const Int_t    lB  = 1;
+  const Int_t    lP  = 1;
+  const Int_t    lS  = 1;
+  const Int_t    lR  = 1;
+  const Int_t    lRP = 1;
+  const Int_t    lL  = 2;
   // histogram fill styles
-  const Int_t    fM = 0;
-  const Int_t    fU = 3017;
-  const Int_t    fB = 3018;
-  const Int_t    fP = 0;
-  const Int_t    fS = 0;
-  const Int_t    fR = 0;
+  const Int_t    fM  = 0;
+  const Int_t    fU  = 3017;
+  const Int_t    fB  = 3018;
+  const Int_t    fP  = 0;
+  const Int_t    fS  = 0;
+  const Int_t    fRU = 3017;
+  const Int_t    fRB = 3018;
+  const Int_t    fRS = 0;
+  const Int_t    fRP = 0;
   // histogram dimensions
-  const Double_t x1   = -10.;
-  const Double_t x2   = 70.;
+  const Double_t x1   = -5.;
+  const Double_t x2   = 47.;
   const Double_t y1up = 0.0000005;
   const Double_t y2up = 5.;
   const Double_t y1lo = 0.;
-  const double_t y2lo = 6.5;
+  const double_t y2lo = 3.33;
   // axis titles
   const TString sX("p_{T}^{jet} [GeV/c]");
+  const TString sXres("p_{T}^{jet}(det.) [GeV/c]");
+  const TString sXeff("p_{T}^{jet}(par.) [GeV/c]");
   const TString sYup("(1/N^{trg}) dN^{jet}/d(p_{T}^{reco} #eta^{jet}) [GeV/c]^{-1}");
-  const TString sYlo1("ratio");
+  const TString sYlo("ratio");
+  const TString sYres("p_{T}^{jet}(par.) [GeV/c]");
+  const TString sYeff("#epsilon_{jet}(p_{T}^{jet})");
 
 
   // generate legends
@@ -145,6 +178,16 @@ void StJetFolder::CreatePlots() {
   lUvM -> SetTextAlign(12);
   lUvM -> AddEntry(_hMeasured, "Measured");
   lUvM -> AddEntry(_hUnfolded, "Unfolded");
+
+  TLegend *lSvP = new TLegend(0.3, 0.1, 0.5, 0.3);
+  lSvP -> SetFillColor(0);
+  lSvP -> SetFillStyle(0);
+  lSvP -> SetLineColor(0);
+  lSvP -> SetTextColor(1);
+  lSvP -> SetTextFont(42);
+  lSvP -> SetTextAlign(12);
+  lSvP -> AddEntry(_hSmeared, "Smeared Prior");
+  lSvP -> AddEntry(_hPrior, "Prior");
 
 
   // create chi2 texts
@@ -220,7 +263,7 @@ void StJetFolder::CreatePlots() {
   hLo -> GetXaxis() -> CenterTitle(true);
   hLo -> GetXaxis() -> SetLabelFont(42);
   hLo -> GetXaxis() -> SetLabelSize(0.074);
-  hLo -> GetYaxis() -> SetTitle(sYlo1);
+  hLo -> GetYaxis() -> SetTitle(sYlo);
   hLo -> GetYaxis() -> SetTitleFont(42);
   hLo -> GetYaxis() -> SetTitleSize(0.074);
   hLo -> GetYaxis() -> SetTitleOffset(0.7);
@@ -229,6 +272,66 @@ void StJetFolder::CreatePlots() {
   hLo -> GetYaxis() -> SetLabelSize(0.074);
   hLo -> GetYaxis() -> SetNdivisions(nD, 5, 0);
   hLo -> GetYaxis() -> SetRangeUser(y1lo, y2lo);
+
+  // set response and efficiency styles
+  _hResponse -> GetXaxis() -> SetTitle(sXres);
+  _hResponse -> GetXaxis() -> SetTitleFont(42);
+  _hResponse -> GetXaxis() -> SetTitleSize(0.04);
+  _hResponse -> GetXaxis() -> CenterTitle(true);
+  _hResponse -> GetXaxis() -> SetLabelFont(42);
+  _hResponse -> GetXaxis() -> SetLabelSize(0.04);
+  _hResponse -> GetXaxis() -> SetTitleOffset(1.3);
+  _hResponse -> GetXaxis() -> SetRangeUser(x1, x2);
+  _hResponse -> GetYaxis() -> SetTitle(sYres);
+  _hResponse -> GetYaxis() -> SetTitleFont(42);
+  _hResponse -> GetYaxis() -> SetTitleSize(0.04);
+  _hResponse -> GetYaxis() -> SetTitleOffset(1.3);
+  _hResponse -> GetYaxis() -> CenterTitle(true);
+  _hResponse -> GetYaxis() -> SetLabelFont(42);
+  _hResponse -> GetYaxis() -> SetLabelSize(0.04);
+  _hResponse -> GetYaxis() -> SetRangeUser(x1, x2);
+  _hResponse -> GetZaxis() -> SetLabelFont(42);
+  _hResponse -> GetZaxis() -> SetLabelSize(0.04);
+  _hResponse -> SetTitleFont(42);
+
+  _hEfficiency -> GetXaxis() -> SetTitle(sXeff);
+  _hEfficiency -> GetXaxis() -> SetTitleFont(42);
+  _hEfficiency -> GetXaxis() -> SetTitleSize(0.04);
+  _hEfficiency -> GetXaxis() -> CenterTitle(true);
+  _hEfficiency -> GetXaxis() -> SetLabelFont(42);
+  _hEfficiency -> GetXaxis() -> SetLabelSize(0.04);
+  _hEfficiency -> GetXaxis() -> SetTitleOffset(1.3);
+  _hEfficiency -> GetXaxis() -> SetRangeUser(x1, x2);
+  _hEfficiency -> GetYaxis() -> SetTitle(sYeff);
+  _hEfficiency -> GetYaxis() -> SetTitleFont(42);
+  _hEfficiency -> GetYaxis() -> SetTitleSize(0.04);
+  _hEfficiency -> GetYaxis() -> SetTitleOffset(1.3);
+  _hEfficiency -> GetYaxis() -> CenterTitle(true);
+  _hEfficiency -> GetYaxis() -> SetLabelFont(42);
+  _hEfficiency -> GetYaxis() -> SetLabelSize(0.04);
+  _hEfficiency -> GetYaxis() -> SetRangeUser(y1lo, y2lo);
+  _hEfficiency -> SetTitleFont(42);
+
+
+  // create response profile
+  TH1D *hResProfile = _hResponse -> ProfileX("hResProfile", 0, -1, "S");
+  hResProfile -> GetXaxis() -> SetTitle(sXres);
+  hResProfile -> GetXaxis() -> SetTitleFont(42);
+  hResProfile -> GetXaxis() -> SetTitleSize(0.04);
+  hResProfile -> GetXaxis() -> CenterTitle(true);
+  hResProfile -> GetXaxis() -> SetLabelFont(42);
+  hResProfile -> GetXaxis() -> SetLabelSize(0.04);
+  hResProfile -> GetXaxis() -> SetTitleOffset(1.3);
+  hResProfile -> GetXaxis() -> SetRangeUser(x1, x2);
+  hResProfile -> GetYaxis() -> SetTitle(sYres);
+  hResProfile -> GetYaxis() -> SetTitleFont(42);
+  hResProfile -> GetYaxis() -> SetTitleSize(0.04);
+  hResProfile -> GetYaxis() -> SetTitleOffset(1.3);
+  hResProfile -> GetYaxis() -> CenterTitle(true);
+  hResProfile -> GetYaxis() -> SetLabelFont(42);
+  hResProfile -> GetYaxis() -> SetLabelSize(0.04);
+  hResProfile -> GetYaxis() -> SetRangeUser(x1, x2);
+  hResProfile -> SetTitleFont(42);
 
 
   // create line
@@ -270,8 +373,8 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLoA   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hUnfoldVsPriRatio, "PE5 same", cUP, cUP, cUP, mR, lR, fR, 1.);
-  DrawHistogram(_hBackVsMeasRatio, "PE5 same", cBM, cBM, cBM, mR, lR, fR, 1.);
+  DrawHistogram(_hUnfoldVsPriRatio, "PE5 same", cUP, cUP, cUP, mR, lR, fRU, 1.);
+  DrawHistogram(_hBackVsMeasRatio, "PE5 same", cBM, cBM, cBM, mR, lR, fRB, 1.);
   lUvB   -> Draw();
   lOne   -> Draw();
   pChi2U -> Draw();
@@ -319,7 +422,7 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo1   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hBackVsMeasRatio, "PE5 same", cBM, cBM, cBM, mR, lR, fR, 1.);
+  DrawHistogram(_hBackVsMeasRatio, "PE5 same", cBM, cBM, cBM, mR, lR, fRB, 1.);
   lOne   -> Draw();
   pChi2B -> Draw();
   pUp1   -> cd();
@@ -363,7 +466,7 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo2   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hUnfoldVsPriRatio, "PE5 same", cUP, cUP, cUP, mR, lR, fR, 1.);
+  DrawHistogram(_hUnfoldVsPriRatio, "PE5 same", cUP, cUP, cUP, mR, lR, fRU, 1.);
   lOne   -> Draw();
   pChi2U -> Draw();
   pUp2   -> cd();
@@ -407,7 +510,7 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo3   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hSmearVsMeasRatio, "PE2 same", cSM, cSM, cSM, mR, lR, fR, 1.);
+  DrawHistogram(_hSmearVsMeasRatio, "PE2 same", cSM, cSM, cSM, mR, lR, fRS, 1.);
   lOne   -> Draw();
   pUp3   -> cd();
   hUp    -> Draw();
@@ -450,7 +553,7 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo4   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hUnfoldVsMeasRatio, "PE5 same", cUM, cUM, cUM, mR, lR, fR, 1.);
+  DrawHistogram(_hUnfoldVsMeasRatio, "PE5 same", cUM, cUM, cUM, mR, lR, fRU, 1.);
   lOne   -> Draw();
   pUp4   -> cd();
   hUp    -> Draw();
@@ -460,6 +563,89 @@ void StJetFolder::CreatePlots() {
   _label -> Draw();
   cUvM   -> Write();
   cUvM   -> Close();
+
+  TCanvas *cSvP = new TCanvas("cSvP", "Smeared vs. prior", 750, 950);
+  TPad    *pLo5 = new TPad("pLo5", "ratio", 0, 0, 1, 0.35);
+  TPad    *pUp5 = new TPad("pUp5", "smeared and prior", 0, 0.35, 1, 1);
+  // set plot options
+  pLo5   -> SetFillStyle(4000);
+  pLo5   -> SetFillColor(0);
+  pLo5   -> SetBorderMode(0);
+  pLo5   -> SetFrameBorderMode(0);
+  pLo5   -> SetLeftMargin(0.15);
+  pLo5   -> SetRightMargin(0.05);
+  pLo5   -> SetTopMargin(0.);
+  pLo5   -> SetBottomMargin(0.25);
+  pLo5   -> SetGrid(0, 0);
+  pLo5   -> SetTickx(1);
+  pLo5   -> SetTicky(1);
+  pUp5   -> SetFillStyle(4000);
+  pUp5   -> SetFillColor(0);
+  pUp5   -> SetBorderMode(0);
+  pUp5   -> SetFrameBorderMode(0);
+  pUp5   -> SetLeftMargin(0.15);
+  pUp5   -> SetRightMargin(0.05);
+  pUp5   -> SetTopMargin(0.05);
+  pUp5   -> SetBottomMargin(0.);
+  pUp5   -> SetGrid(0, 0);
+  pUp5   -> SetTickx(1);
+  pUp5   -> SetTicky(1);
+  pUp5   -> SetLogy(1);
+  pLo5   -> Draw();
+  pUp5   -> Draw();
+  // draw histograms
+  pLo5   -> cd();
+  hLo    -> Draw();
+  DrawHistogram(_hSmearVsPriRatio, "PE2 same", cSP, cSP, cSP, mR, lR, fRS, 1.);
+  lOne   -> Draw();
+  pUp5   -> cd();
+  hUp    -> Draw();
+  DrawHistogram(_hPrior, "PE2 same", cP, cP, cP, mP, lP, fP, 1.);
+  DrawHistogram(_hSmeared, "PE2 same", cS, cS, cS, mS, lS, fS, 1.);
+  lSvP   -> Draw();
+  _label -> Draw();
+  cSvP   -> Write();
+  cSvP   -> Close();
+
+
+  TCanvas *cResponse = new TCanvas("cResponse", "Efficiency and response matrix", 1500, 750);
+  TPad    *pResponse = new TPad("pResponse", "response matrix", 0, 0, 0.5, 1);
+  TPad    *pEfficiency = new TPad("pEfficiency", "efficiency", 0.5, 0., 1, 1);
+  // set plot options
+  pResponse   -> SetFillStyle(4000);
+  pResponse   -> SetFillColor(0);
+  pResponse   -> SetBorderMode(0);
+  pResponse   -> SetFrameBorderMode(0);
+  pResponse   -> SetLeftMargin(0.15);
+  pResponse   -> SetRightMargin(0.15);
+  pResponse   -> SetTopMargin(0.05);
+  pResponse   -> SetBottomMargin(0.15);
+  pResponse   -> SetGrid(0, 0);
+  pResponse   -> SetTickx(1);
+  pResponse   -> SetTicky(1);
+  pResponse   -> SetLogz(1);
+  pEfficiency -> SetFillStyle(4000);
+  pEfficiency -> SetFillColor(0);
+  pEfficiency -> SetBorderMode(0);
+  pEfficiency -> SetFrameBorderMode(0);
+  pEfficiency -> SetLeftMargin(0.15);
+  pEfficiency -> SetRightMargin(0.15);
+  pEfficiency -> SetTopMargin(0.05);
+  pEfficiency -> SetBottomMargin(0.15);
+  pEfficiency -> SetGrid(0, 0);
+  pEfficiency -> SetTickx(1);
+  pEfficiency -> SetTicky(1);
+  pResponse   -> Draw();
+  pEfficiency -> Draw();
+  // draw histograms
+  pResponse   -> cd();
+  _hResponse  -> Draw("colz");
+  DrawHistogram(hResProfile, "same", cRP, cRP, cRP, mRP, lRP, fRP, 1.);
+  pEfficiency -> cd();
+  DrawHistogram(_hEfficiency, "PE2", cM, cM, cM, mM, lM, fM, 1.);
+  _label      -> Draw();
+  cResponse   -> Write();
+  cResponse   -> Close();
 
 
 }  // end 'CreatePlots()'

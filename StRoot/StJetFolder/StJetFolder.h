@@ -89,6 +89,7 @@ public:
 private:
 
   // atomic members
+  Int_t     _trigger;
   Int_t     _type;
   Int_t     _prior;
   Int_t     _method;
@@ -119,6 +120,7 @@ private:
   TH1D      *_hUnfoldVsPriRatio;
   TH1D      *_hSmearVsMeasRatio;
   TH1D      *_hUnfoldVsMeasRatio;
+  TH1D      *_hSmearVsPriRatio;
   TH2D      *_hResponse;
   TFile     *_fOut;
   TString   *_sEvnt;

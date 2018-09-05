@@ -199,6 +199,7 @@ void StJetFolder::SetTriggerInfo(const Int_t trigger, const Double_t eTmin, cons
       tTxt = "#pi^{0} trigger, ";
       break;
   }
+  _trigger = trigger;
 
   eStr += eTmin;
   ResizeString(eStr, nDecE);

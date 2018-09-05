@@ -154,6 +154,7 @@ void StJetFolder::Finish() {
   _hUnfoldVsPriRatio  = CalculateRatio(_hUnfolded, _hPrior, "hUnfoldVsPriRatio");
   _hSmearVsMeasRatio  = CalculateRatio(_hSmeared, _hMeasured, "hSmearVsMeasRatio");
   _hUnfoldVsMeasRatio = CalculateRatio(_hUnfolded, _hMeasured, "hUnfoldVsMeasRatio");
+  _hSmearVsPriRatio   = CalculateRatio(_hSmeared, _hPrior, "hSmearVsPriRatio");
   PrintInfo(9);
 
   // set names
