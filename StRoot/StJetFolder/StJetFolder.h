@@ -13,7 +13,7 @@
 //   backfold -- unfolded spectrum with efficiencies, smearing,
 //               etc. applied.
 //
-// Last updated: 07.15.2018
+// Last updated: 09.12.2018
 
 
 #ifndef StJetFolder_h
@@ -44,6 +44,7 @@
 #include "../RooUnfold/RooUnfoldBinByBin.h"
 #include "../RooUnfold/RooUnfoldTUnfold.h"
 #include "../RooUnfold/RooUnfoldInvert.h"
+#include "../RooUnfold/RooUnfoldErrors.h"
 
 using namespace std;
 
@@ -114,13 +115,14 @@ private:
   TH1D      *_hMeasured;  
   TH1D      *_hUnfolded;  
   TH1D      *_hBackfolded;
-  TH1D      *_hEfficiency;
   TH1D      *_hNormalize;
   TH1D      *_hBackVsMeasRatio;
   TH1D      *_hUnfoldVsPriRatio;
   TH1D      *_hSmearVsMeasRatio;
   TH1D      *_hUnfoldVsMeasRatio;
   TH1D      *_hSmearVsPriRatio;
+  TH1D      *_hUnfoldErrors;
+  TH1D      *_hEfficiency;
   TH2D      *_hResponse;
   TFile     *_fOut;
   TString   *_sEvnt;

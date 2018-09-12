@@ -6,7 +6,7 @@
 // contains the 'Init()', 'Unfold()', 'Backfold()', and 'Finish()'
 // routines.
 //
-// Last updated: 07.15.2018
+// Last updated: 09.12.2018
 
 
 #define StJetFolder_cxx
@@ -49,39 +49,51 @@ void StJetFolder::Unfold(Double_t &chi2unfold) {
 
   PrintInfo(5);
 
+  // do unfolding
   RooUnfoldBayes    *bay;
   RooUnfoldSvd      *svd;
   RooUnfoldBinByBin *bin;
   RooUnfoldTUnfold  *tun;
   RooUnfoldInvert   *inv;
+  RooUnfoldErrors   *err;
   switch (_method) {
     case 0:
       _hUnfolded = (TH1D*) _hMeasured -> Clone("hUnfolded");
       break;
     case 1:
       bay        = new RooUnfoldBayes(_response, _hMeasured, _kReg);
+      err        = new RooUnfoldErrors(_nToy, bay);
       _hUnfolded = (TH1D*) bay -> Hreco();
       break;
     case 2:
       svd        = new RooUnfoldSvd(_response, _hMeasured, _kReg, _nToy);
+      err        = new RooUnfoldErrors(_nToy, svd);
       _hUnfolded = (TH1D*) svd -> Hreco();
       break;
     case 3:
       bin        = new RooUnfoldBinByBin(_response, _hMeasured);
+      err        = new RooUnfoldErrors(_nToy, bin);
       _hUnfolded = (TH1D*) bin -> Hreco();
       break;
     case 4:
       tun        = new RooUnfoldTUnfold(_response, _hMeasured, TUnfold::kRegModeDerivative);
+      err        = new RooUnfoldErrors(_nToy, tun);
       _hUnfolded = (TH1D*) tun -> Hreco();
       break;
     case 5:
       inv        = new RooUnfoldInvert(_response, _hMeasured);
+      err        = new RooUnfoldErrors(_nToy, inv);
       _hUnfolded = (TH1D*) inv -> Hreco();
       break;
   }
 
-  // correct for efficiency
+  // correct for efficiency and grab errors
   _hUnfolded -> Divide(_hEfficiency);
+  if (_method != 0)
+    _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+  else
+    _hUnfoldErrors = (TH1D*) _hUnfolded -> Clone();
+
 
   // make sure unfolded didn't exceed max bin
   Int_t nU = _hUnfolded -> GetNbinsX();
@@ -157,13 +169,15 @@ void StJetFolder::Finish() {
   _hSmearVsPriRatio   = CalculateRatio(_hSmeared, _hPrior, "hSmearVsPriRatio");
   PrintInfo(9);
 
+
   // set names
-  _hPrior      -> SetName("hPrior");
-  _hSmeared    -> SetName("hSmeared");
-  _hMeasured   -> SetName("hMeasured");
-  _hUnfolded   -> SetName("hUnfolded");
-  _hEfficiency -> SetName("hEfficiency");
-  _hResponse   -> SetName("hResponse");
+  _hPrior        -> SetName("hPrior");
+  _hSmeared      -> SetName("hSmeared");
+  _hMeasured     -> SetName("hMeasured");
+  _hUnfolded     -> SetName("hUnfolded");
+  _hUnfoldErrors -> SetName("hUnfoldErrors");
+  _hEfficiency   -> SetName("hEfficiency");
+  _hResponse     -> SetName("hResponse");
 
 
   CreateLabel();
@@ -182,6 +196,7 @@ void StJetFolder::Finish() {
   _hUnfoldVsPriRatio  -> Write();
   _hSmearVsMeasRatio  -> Write();
   _hUnfoldVsMeasRatio -> Write();
+  _hUnfoldErrors      -> Write();
   _hEfficiency        -> Write();
   _hResponse          -> Write();
   _label              -> Write();
