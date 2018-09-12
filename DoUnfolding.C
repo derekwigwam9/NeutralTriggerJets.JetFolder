@@ -50,24 +50,24 @@ class StJetFolder;
 
 
 // input and output files
-static const TString pFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
-static const TString sFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
-static const TString mFile("input/pp200r9.pTbinRes.et911vz55.r02a005rm1chrg.d16m8y2018.root");
-static const TString eFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
-static const TString rFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
-static const TString oFile("pp200r9.binByBinTest.et911vz55gam.r02a005rm1chrg");
+static const TString pFile("input/pp200r9embed.pTbinRes.et920vz55.r05a065rm1chrg.dr05q015185.root");
+static const TString sFile("input/pp200r9embed.pTbinRes.et920vz55.r05a065rm1chrg.dr05q015185.root");
+static const TString mFile("input/pp200r9.pTbinRes.et911vz55.r05a065rm1chrg.d16m8y2018.root");
+static const TString eFile("input/pp200r9embed.pTbinRes.et920vz55.r05a065rm1chrg.dr05q015185.root");
+static const TString rFile("input/pp200r9embed.pTbinRes.et920vz55.r05a065rm1chrg.dr05q015185.root");
+//static const TString oFile("pp200r9.correctGamSub.et911vz55pi0.r05a065rm1chrg");
+static const TString oFile("test");
 // input namecycles
 static const TString pName("hSumParAll");
 static const TString sName("hSumDetAll");
-static const TString mName("Gam/hJetPtCorrG");
+static const TString mName("Pi0/hJetPtCorrP");
 static const TString eName("hEfficiencyAll");
 static const TString rName("hResponseAll");
-
 // unfolding parameters (to loop over)
 static const Int_t nM  = 1;
-static const Int_t M[] = {2};
+static const Int_t M[] = {3};
 static const Int_t nK  = 1;
-static const Int_t K[] = {10};
+static const Int_t K[] = {2};
 // prior parameters (to loop over)
 static const Int_t    nP  = 1;
 static const Int_t    nN  = 1;
@@ -77,26 +77,28 @@ static const Double_t N[] = {5.8};
 static const Double_t T[] = {0.4};
 
 
+// trigger and jet parameters (for plot labels)
+static const Int_t   beam   = 0;        // 0 = "pp", 1 = "AuAu"
+static const Int_t   trig   = 2;        // 0 = "gamma-dir", 1 = "gamma-rich", 2 = "pi0"
+static const Int_t   type   = 0;        // 0 = "charged jets", 1 = "full jets"
+static const Float_t energy = 200.;     // sqrt(s)
+static const Float_t eTmin  = 9.;
+static const Float_t eTmax  = 11.;
+static const Float_t rJet   = 0.2;
+
 // jet parameters (won't impact unfolding)
 static const Int_t    nRM     = 1;
-static const Int_t    type    = 0;
-static const Double_t rJet    = 0.2;
 static const Double_t aMin    = 0.05;
 static const Double_t pTmin   = 0.2;
 static const Double_t pTmaxU  = 47.;
 static const Double_t pTmaxB  = 38.;
-static const Double_t eTmin   = 9.;
-static const Double_t eTmax   = 11.;
 static const Double_t hTrgMax = 0.9;
 
 // these don't need to be changed
-static const Int_t    beam   = 0;        // 0 = "pp", 1 = "AuAu"
-static const Int_t    trig   = 2;        // 0 = "gamma-dir", 1 = "gamma-rich", 2 = "pi0"
-static const Int_t    nToy   = 10;       // used to calculate covariances
-static const Int_t    nMC    = 1000000;  // number of MC iterations for backfolding
-static const Double_t energy = 200.;     // sqrt(s)
-static const Double_t bPrior = 0.1;      // normalization of prior
-static const Double_t mPrior = 0.140;    // m-parameter of prior
+static const Int_t    nToy   = 10;      // used to calculate covariances
+static const Int_t    nMC    = 100000;  // number of MC iterations for backfolding
+static const Double_t bPrior = 0.1;     // normalization of prior
+static const Double_t mPrior = 0.140;   // m-parameter of prior
 
 
 void DoUnfolding() {
