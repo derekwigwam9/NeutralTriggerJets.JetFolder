@@ -5,7 +5,7 @@
 // This class handles the unfolding of a provided spectrum.  This file
 // encapsulates various routines associated with plotting results.
 //
-// Last updated: 08.23.2018
+// Last updated: 09.12.2018
 
 
 #pragma once
@@ -373,8 +373,14 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLoA   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hUnfoldVsPriRatio, "PE5 same", cUP, cUP, cUP, mR, lR, fRU, 1.);
-  DrawHistogram(_hBackVsMeasRatio, "PE5 same", cBM, cBM, cBM, mR, lR, fRB, 1.);
+  if (_method == 3) {
+    DrawHistogram(_hUnfoldVsPriRatio, "PE2 same", cUP, cUP, cUP, mR, lR, fRU, 1.);
+    DrawHistogram(_hBackVsMeasRatio, "PE2 same", cBM, cBM, cBM, mR, lR, fRB, 1.);
+  }
+  else {
+    DrawHistogram(_hUnfoldVsPriRatio, "PE5 same", cUP, cUP, cUP, mR, lR, fRU, 1.);
+    DrawHistogram(_hBackVsMeasRatio, "PE5 same", cBM, cBM, cBM, mR, lR, fRB, 1.);
+  }
   lUvB   -> Draw();
   lOne   -> Draw();
   pChi2U -> Draw();
@@ -382,9 +388,15 @@ void StJetFolder::CreatePlots() {
   pUpA   -> cd();
   hUp    -> Draw();
   DrawHistogram(_hMeasured, "PE2 same", cM, cM, cM, mM, lM, fM, 1.);
-  DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
-  DrawHistogram(_hBackfolded, "PE5 same", cB, cB, cB, mB, lB, fB, 1.);
   DrawHistogram(_hPrior, "PE2 same", cP, cP, cP, mP, lP, fP, 1.);
+  if (_method == 3) {
+    DrawHistogram(_hUnfolded, "PE2 same", cU, cU, cU, mU, lU, fU, 1.);
+    DrawHistogram(_hBackfolded, "PE2 same", cB, cB, cB, mB, lB, fB, 1.);
+  }
+  else {
+    DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
+    DrawHistogram(_hBackfolded, "PE5 same", cB, cB, cB, mB, lB, fB, 1.);
+  }
   lAll   -> Draw();
   _label -> Draw();
   cAll   -> Write();
@@ -422,13 +434,19 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo1   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hBackVsMeasRatio, "PE5 same", cBM, cBM, cBM, mR, lR, fRB, 1.);
+  if (_method == 3)
+    DrawHistogram(_hBackVsMeasRatio, "PE2 same", cBM, cBM, cBM, mR, lR, fRB, 1.);
+  else
+    DrawHistogram(_hBackVsMeasRatio, "PE5 same", cBM, cBM, cBM, mR, lR, fRB, 1.);
   lOne   -> Draw();
   pChi2B -> Draw();
   pUp1   -> cd();
   hUp    -> Draw();
   DrawHistogram(_hMeasured, "PE2 same", cM, cM, cM, mM, lM, fM, 1.);
-  DrawHistogram(_hBackfolded, "PE5 same", cB, cB, cB, mB, lB, fB, 1.);
+  if (_method == 3)
+    DrawHistogram(_hBackfolded, "PE2 same", cB, cB, cB, mB, lB, fB, 1.);
+  else
+    DrawHistogram(_hBackfolded, "PE5 same", cB, cB, cB, mB, lB, fB, 1.);
   lBvM   -> Draw();
   _label -> Draw();
   cBvM   -> Write();
@@ -466,13 +484,19 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo2   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hUnfoldVsPriRatio, "PE5 same", cUP, cUP, cUP, mR, lR, fRU, 1.);
+  if (_method == 3)
+    DrawHistogram(_hUnfoldVsPriRatio, "PE2 same", cUP, cUP, cUP, mR, lR, fRU, 1.);
+  else
+    DrawHistogram(_hUnfoldVsPriRatio, "PE5 same", cUP, cUP, cUP, mR, lR, fRU, 1.);
   lOne   -> Draw();
   pChi2U -> Draw();
   pUp2   -> cd();
   hUp    -> Draw();
-  DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
   DrawHistogram(_hPrior, "PE2 same", cP, cP, cP, mP, lP, fP, 1.);
+  if (_method == 3)
+    DrawHistogram(_hUnfolded, "PE2 same", cU, cU, cU, mU, lU, fU, 1.);
+  else
+    DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
   lPvU   -> Draw();
   _label -> Draw();
   cPvU   -> Write();
@@ -553,12 +577,18 @@ void StJetFolder::CreatePlots() {
   // draw histograms
   pLo4   -> cd();
   hLo    -> Draw();
-  DrawHistogram(_hUnfoldVsMeasRatio, "PE5 same", cUM, cUM, cUM, mR, lR, fRU, 1.);
+  if (_method == 3)
+    DrawHistogram(_hUnfoldVsMeasRatio, "PE2 same", cUM, cUM, cUM, mR, lR, fRU, 1.);
+  else
+    DrawHistogram(_hUnfoldVsMeasRatio, "PE5 same", cUM, cUM, cUM, mR, lR, fRU, 1.);
   lOne   -> Draw();
   pUp4   -> cd();
   hUp    -> Draw();
   DrawHistogram(_hMeasured, "PE2 same", cM, cM, cM, mM, lM, fM, 1.);
-  DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
+  if (_method == 3)
+    DrawHistogram(_hUnfolded, "PE2 same", cU, cU, cU, mU, lU, fU, 1.);
+  else
+    DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
   lUvM   -> Draw();
   _label -> Draw();
   cUvM   -> Write();
