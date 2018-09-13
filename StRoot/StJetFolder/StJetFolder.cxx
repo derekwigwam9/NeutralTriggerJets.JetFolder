@@ -87,12 +87,34 @@ void StJetFolder::Unfold(Double_t &chi2unfold) {
       break;
   }
 
-  // correct for efficiency and grab errors
+  // correct for efficiency, grab errors, and grab D vector
   _hUnfolded -> Divide(_hEfficiency);
-  if (_method != 0)
-    _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
-  else
-    _hUnfoldErrors = (TH1D*) _hUnfolded -> Clone();
+  switch (_method) {
+    case 0:
+      _hUnfoldErrors = (TH1D*) _hUnfolded -> Clone();
+      _hDvector      = (TH1D*) _hUnfolded -> Clone();
+      break;
+    case 1:
+      _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+      _hDvector      = (TH1D*) bay -> Hreco();
+      break;
+    case 2:
+      _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+      _hDvector      = (TH1D*) svd -> Impl() -> GetD();
+      break;
+    case 3:
+      _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+      _hDvector      = (TH1D*) bin -> Hreco();
+      break;
+    case 4:
+      _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+      _hDvector      = (TH1D*) tun -> Hreco();
+      break;
+    case 5:
+      _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+      _hDvector      = (TH1D*) inv -> Hreco();
+      break;
+  }
 
 
   // make sure unfolded didn't exceed max bin
@@ -175,6 +197,7 @@ void StJetFolder::Finish() {
   _hSmeared      -> SetName("hSmeared");
   _hMeasured     -> SetName("hMeasured");
   _hUnfolded     -> SetName("hUnfolded");
+  _hDvector      -> SetName("hDvector");
   _hUnfoldErrors -> SetName("hUnfoldErrors");
   _hEfficiency   -> SetName("hEfficiency");
   _hResponse     -> SetName("hResponse");
@@ -196,6 +219,7 @@ void StJetFolder::Finish() {
   _hUnfoldVsPriRatio  -> Write();
   _hSmearVsMeasRatio  -> Write();
   _hUnfoldVsMeasRatio -> Write();
+  _hDvector           -> Write();
   _hUnfoldErrors      -> Write();
   _hEfficiency        -> Write();
   _hResponse          -> Write();

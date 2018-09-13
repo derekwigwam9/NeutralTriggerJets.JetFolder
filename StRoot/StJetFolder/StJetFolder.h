@@ -37,6 +37,7 @@
 #include "TProfile.h"
 #include "TRandom3.h"
 #include "TPaveText.h"
+#include "TSVDUnfold.h"
 // RooUnfold includes
 #include "../RooUnfold/RooUnfoldResponse.h"
 #include "../RooUnfold/RooUnfoldBayes.h"
@@ -112,8 +113,8 @@ private:
   TF1       *_fExponential;
   TH1D      *_hPrior;
   TH1D      *_hSmeared;
-  TH1D      *_hMeasured;  
-  TH1D      *_hUnfolded;  
+  TH1D      *_hMeasured;
+  TH1D      *_hUnfolded;
   TH1D      *_hBackfolded;
   TH1D      *_hNormalize;
   TH1D      *_hBackVsMeasRatio;
@@ -121,6 +122,7 @@ private:
   TH1D      *_hSmearVsMeasRatio;
   TH1D      *_hUnfoldVsMeasRatio;
   TH1D      *_hSmearVsPriRatio;
+  TH1D      *_hDvector;
   TH1D      *_hUnfoldErrors;
   TH1D      *_hEfficiency;
   TH2D      *_hResponse;
