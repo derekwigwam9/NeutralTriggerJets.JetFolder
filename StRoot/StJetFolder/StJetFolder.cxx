@@ -92,26 +92,32 @@ void StJetFolder::Unfold(Double_t &chi2unfold) {
   switch (_method) {
     case 0:
       _hUnfoldErrors = (TH1D*) _hUnfolded -> Clone();
+      _hSVvector     = (TH1D*) _hUnfolded -> Clone();
       _hDvector      = (TH1D*) _hUnfolded -> Clone();
       break;
     case 1:
       _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+      _hSVvector     = (TH1D*) bay -> Hreco();
       _hDvector      = (TH1D*) bay -> Hreco();
       break;
     case 2:
       _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+      _hSVvector     = (TH1D*) svd -> Impl() -> GetSV();
       _hDvector      = (TH1D*) svd -> Impl() -> GetD();
       break;
     case 3:
       _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+      _hSVvector     = (TH1D*) bin -> Hreco();
       _hDvector      = (TH1D*) bin -> Hreco();
       break;
     case 4:
       _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+      _hSVvector     = (TH1D*) tun -> Hreco();
       _hDvector      = (TH1D*) tun -> Hreco();
       break;
     case 5:
       _hUnfoldErrors = (TH1D*) err -> UnfoldingError();
+      _hSVvector     = (TH1D*) inv -> Hreco();
       _hDvector      = (TH1D*) inv -> Hreco();
       break;
   }
@@ -198,6 +204,7 @@ void StJetFolder::Finish() {
   _hMeasured     -> SetName("hMeasured");
   _hUnfolded     -> SetName("hUnfolded");
   _hDvector      -> SetName("hDvector");
+  _hSVvector     -> SetName("hSVvector");
   _hUnfoldErrors -> SetName("hUnfoldErrors");
   _hEfficiency   -> SetName("hEfficiency");
   _hResponse     -> SetName("hResponse");
@@ -220,6 +227,7 @@ void StJetFolder::Finish() {
   _hSmearVsMeasRatio  -> Write();
   _hUnfoldVsMeasRatio -> Write();
   _hDvector           -> Write();
+  _hSVvector          -> Write();
   _hUnfoldErrors      -> Write();
   _hEfficiency        -> Write();
   _hResponse          -> Write();

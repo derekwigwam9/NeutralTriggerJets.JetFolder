@@ -123,6 +123,7 @@ private:
   TH1D      *_hUnfoldVsMeasRatio;
   TH1D      *_hSmearVsPriRatio;
   TH1D      *_hDvector;
+  TH1D      *_hSVvector;
   TH1D      *_hUnfoldErrors;
   TH1D      *_hEfficiency;
   TH2D      *_hResponse;
