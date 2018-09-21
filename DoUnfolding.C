@@ -53,16 +53,15 @@ class StJetFolder;
 static const TString pFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
 static const TString sFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
 static const TString mFile("input/pp200r9.pTbinRes.et911vz55.r02a005rm1chrg.d16m8y2018.root");
-static const TString eFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
-static const TString rFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
-//static const TString oFile("pp200r9.svdTestNoPt2330bin.et911vz55pi0.r02a005rm1chrg");
-static const TString oFile("effTest");
+static const TString eFile("input/pp200py8.defaultResponse.pTbinRes.et920pi0.r02a005rm1chrg.dr02q015185.root");
+static const TString rFile("input/pp200py8.defaultResponse.pTbinRes.et920pi0.r02a005rm1chrg.dr02q015185.root");
+static const TString oFile("pp200r9.unfoldSystematicCheck_WithSystematics.et911vz55pi0.r02a005rm1chrg");
 // input namecycles
 static const TString pName("hSumParAll");
 static const TString sName("hSumDetAll");
 static const TString mName("Pi0/hJetPtCorrP");
-static const TString eName("hEfficiencyAll");
-static const TString rName("hResponseAll");
+static const TString eName("hEfficiency");
+static const TString rName("hResponse");
 // unfolding parameters (to loop over)
 static const Int_t nM  = 1;
 static const Int_t M[] = {1};
@@ -95,11 +94,12 @@ static const Double_t pTmaxB  = 38.;
 static const Double_t hTrgMax = 0.9;
 
 // these don't need to be changed
-static const Int_t    nToy   = 10;      // used to calculate covariances
-static const Int_t    nMC    = 100000;  // number of MC iterations for backfolding
-static const Bool_t   smooth = true;    // smooth efficiency at high pT
-static const Double_t bPrior = 0.1;     // normalization of prior
-static const Double_t mPrior = 0.140;   // m-parameter of prior
+static const Int_t    nToy     = 10;      // used to calculate covariances
+static const Int_t    nMC      = 100000;  // number of MC iterations for backfolding
+static const Bool_t   smooth   = true;    // smooth efficiency at high pT
+static const Bool_t   noErrors = true;    // remove errors on efficiency
+static const Double_t bPrior   = 0.1;     // normalization of prior
+static const Double_t mPrior   = 0.140;   // m-parameter of prior
 
 
 void DoUnfolding() {
@@ -135,9 +135,11 @@ void DoUnfolding() {
       for (Int_t t = 0; t < nT; t++) {
 
         // don't double count priors...
-        const Bool_t isPyth  = (p == 0);
-        const Bool_t isExpo  = (p == 3);
-        const Bool_t isFirst = (n == 0);
+        const Bool_t isPyth   = (p == 0);
+        const Bool_t isExpo   = (p == 3);
+        const Bool_t isFirstN = (n == 0);
+        const Bool_t isFirstT = (t == 0);
+        const Bool_t isFirst  = (isFirstN || isFirstT);
         if (isPyth && !isFirst) continue;
         if (isExpo && !isFirst) continue;
 
@@ -218,6 +220,19 @@ void DoUnfolding() {
             const Int_t method = M[m];
             const Int_t kReg   = K[k];
 
+            // don't double count bin-by-bin corrections
+            const Bool_t isBinByBin = (method == 3);
+            const Bool_t isFirstK   = (k == 0);
+            if (isBinByBin && !isFirstK) continue;
+
+            // skip unreasonable kReg
+            const Bool_t isBay      = (method == 1);
+            const Bool_t isSVD      = (method == 2);
+            const Bool_t isGoodBayK = (kReg < 6);
+            const Bool_t isGoodSvdK = ((kReg > 5) && (kReg < 12));
+            //if (isBay && !isGoodBayK) continue;
+            //if (isSVD && !isGoodSvdK) continue;
+
             // create output name
             TString output(oFile);
             output += ".p";
@@ -241,7 +256,7 @@ void DoUnfolding() {
             f.SetSmeared(sFile.Data(), sName.Data());
             f.SetMeasured(mFile.Data(), mName.Data());
             f.SetResponse(rFile.Data(), rName.Data());
-            f.SetEfficiency(eFile.Data(), eName.Data(), smooth);
+            f.SetEfficiency(eFile.Data(), eName.Data(), smooth, noErrors);
             // set info and parameters
             f.SetEventInfo(beam, energy);
             f.SetTriggerInfo(trig, eTmin, eTmax, hTrgMax);

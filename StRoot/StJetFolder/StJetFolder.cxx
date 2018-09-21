@@ -63,6 +63,8 @@ void StJetFolder::Unfold(Double_t &chi2unfold) {
     case 1:
       bay        = new RooUnfoldBayes(_response, _hMeasured, _kReg);
       err        = new RooUnfoldErrors(_nToy, bay);
+      // TEST [09.20.2018]
+      bay        -> IncludeSystematics();
       _hUnfolded = (TH1D*) bay -> Hreco();
       break;
     case 2:

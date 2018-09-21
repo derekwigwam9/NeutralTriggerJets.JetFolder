@@ -70,7 +70,7 @@ public:
   void SetSmeared(const Char_t *sFile, const Char_t *sName);
   void SetMeasured(const Char_t *mFile, const Char_t *mName);
   void SetResponse(const Char_t *rFile, const Char_t *rName);
-  void SetEfficiency(const Char_t *eFile, const Char_t *eName, const Bool_t doSmoothing);
+  void SetEfficiency(const Char_t *eFile, const Char_t *eName, const Bool_t doSmoothing, const Bool_t removeErrors);
   void SetEventInfo(const Int_t beam, const Double_t energy);
   void SetTriggerInfo(const Int_t trigger, const Double_t eTmin, const Double_t eTmax, const Double_t hMax);
   void SetJetInfo(const Int_t type, const Int_t nRM, const Double_t rJet, const Double_t aMin, const Double_t pTmin);

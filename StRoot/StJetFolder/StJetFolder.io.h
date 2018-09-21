@@ -114,7 +114,7 @@ void StJetFolder::SetResponse(const Char_t *rFile, const Char_t *rName) {
 }  // end 'SetResponse(Char_t*, Char_t*)'
 
 
-void StJetFolder::SetEfficiency(const Char_t *eFile, const Char_t *eName, const Bool_t doSmoothing) {
+void StJetFolder::SetEfficiency(const Char_t *eFile, const Char_t *eName, const Bool_t doSmoothing, const Bool_t removeErrors) {
 
   TFile *fEfficiency = (TFile*) gROOT -> GetListOfFiles() -> FindObject(eFile);
   if (!fEfficiency || !fEfficiency->IsOpen()) {
@@ -135,19 +135,16 @@ void StJetFolder::SetEfficiency(const Char_t *eFile, const Char_t *eName, const 
     PrintError(4);
     assert(hEfficiency);
   }
-  cout << "CHECK: in efficiency setter!" << endl;
 
-  // smooth efficiency high pT
+  // smooth efficiency at high pT
   const Float_t fitGuess(0.87);
   const Float_t fitRange[2] = {10., 30.};
   if (doSmoothing) {
     TF1 *fFit = new TF1("fFit", "[0]", fitRange[0], fitRange[1]);
     fFit -> SetParameter(0, fitGuess);
-    cout << "CHECK: made fit" << endl;
 
     _hEfficiency -> Fit(fFit, "RQ0");
     if (_hEfficiency -> GetFunction("fFit")) {
-      cout << "CHECK: fit = " << fFit -> GetParameter(0) << endl;
       const UInt_t nBins  = _hEfficiency -> GetNbinsX();
       const UInt_t iStart = _hEfficiency -> FindBin(fitRange[0]);
       for (UInt_t iBin = iStart; iBin < (nBins + 1); iBin++) {
@@ -163,6 +160,14 @@ void StJetFolder::SetEfficiency(const Char_t *eFile, const Char_t *eName, const 
       }  // end bin loop
     }  // end if (function)
   }  // end smoothing
+
+  // remove errors
+  if (removeErrors) {
+    const UInt_t nBins = _hEfficiency -> GetNbinsX();
+    for (UInt_t iBin = 1; iBin < (nBins + 1); iBin++) {
+      _hEfficiency -> SetBinError(iBin, 0.);
+    }  // end bin loop
+  }  // end removing bin errors
 
 }  // end 'SetEfficiency(Char_t*, Char_t*)'
 
