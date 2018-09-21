@@ -193,5 +193,18 @@ Double_t StJetFolder::Exponential(const Double_t *x, const Double_t *p) {
 
 }  // end 'Exponential(Double_t*, Double_t*)'
 
+
+Double_t StJetFolder::PowerLaw(const Double_t *x, const Double_t *p) {
+
+  const Double_t pT = x[0];
+  const Double_t b  = p[0];
+  const Double_t t  = p[1];
+
+  const Double_t pTt   = pow(pT, -1. * t);
+  const Double_t power = b * pTt;
+  return power;
+
+}  // end 'Exponential(Double_t*, Double_t*)'
+
 // End ------------------------------------------------------------------------
  

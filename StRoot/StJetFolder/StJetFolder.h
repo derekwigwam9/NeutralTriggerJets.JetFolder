@@ -86,6 +86,7 @@ public:
   static Double_t Levy(const Double_t *x, const Double_t *p);
   static Double_t Tsallis(const Double_t *x, const Double_t *p);
   static Double_t Exponential(const Double_t *x, const Double_t *p);
+  static Double_t PowerLaw(const Double_t *x, const Double_t *p);
 
 
 private:
@@ -111,6 +112,7 @@ private:
   TF1       *_fLevy;
   TF1       *_fTsallis;
   TF1       *_fExponential;
+  TF1       *_fPowerLaw;
   TH1D      *_hPrior;
   TH1D      *_hSmeared;
   TH1D      *_hMeasured;

@@ -27,6 +27,7 @@
 //               1 = Levy
 //               2 = Tsallis
 //               3 = Exponential
+//               4 = Power
 //   nPrior -- adjusts how fast Levy fncn. drops off
 //             (~5.8 typically produces good results)
 //   tPrior -- adjusts slope of Levy fncn. (~0.4
@@ -50,28 +51,28 @@ class StJetFolder;
 
 
 // input and output files
-static const TString pFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
-static const TString sFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
+static const TString pFile("input/pp200py8.defaultResponse.pTbinRes.et920pi0.r02a005rm1chrg.dr02q015185.root");
+static const TString sFile("input/pp200py8.defaultResponse.pTbinRes.et920pi0.r02a005rm1chrg.dr02q015185.root");
 static const TString mFile("input/pp200r9.pTbinRes.et911vz55.r02a005rm1chrg.d16m8y2018.root");
-static const TString eFile("input/pp200py8.defaultResponse.pTbinRes.et920pi0.r02a005rm1chrg.dr02q015185.root");
-static const TString rFile("input/pp200py8.defaultResponse.pTbinRes.et920pi0.r02a005rm1chrg.dr02q015185.root");
-static const TString oFile("pp200r9.unfoldSystematicCheck_WithSystematics.et911vz55pi0.r02a005rm1chrg");
+static const TString eFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
+static const TString rFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
+static const TString oFile("pp200r9.forPriorSysPy8.et911vz55pi0.r02a005rm1chrg");
 // input namecycles
-static const TString pName("hSumParAll");
-static const TString sName("hSumDetAll");
+static const TString pName("hParticle");
+static const TString sName("hDetector");
 static const TString mName("Pi0/hJetPtCorrP");
-static const TString eName("hEfficiency");
-static const TString rName("hResponse");
+static const TString eName("hEfficiencyAll");
+static const TString rName("hResponseAll");
 // unfolding parameters (to loop over)
 static const Int_t nM  = 1;
 static const Int_t M[] = {1};
 static const Int_t nK  = 1;
-static const Int_t K[] = {2};
+static const Int_t K[] = {4};
 // prior parameters (to loop over)
 static const Int_t    nP  = 1;
 static const Int_t    nN  = 1;
 static const Int_t    nT  = 1;
-static const Int_t    P[] = {0};
+static const Int_t    P[] = {1};
 static const Double_t N[] = {5.8};
 static const Double_t T[] = {0.4};
 
@@ -98,7 +99,7 @@ static const Int_t    nToy     = 10;      // used to calculate covariances
 static const Int_t    nMC      = 100000;  // number of MC iterations for backfolding
 static const Bool_t   smooth   = true;    // smooth efficiency at high pT
 static const Bool_t   noErrors = true;    // remove errors on efficiency
-static const Double_t bPrior   = 0.1;     // normalization of prior
+static const Double_t bPrior   = 1.48;    // normalization of prior
 static const Double_t mPrior   = 0.140;   // m-parameter of prior
 
 
@@ -135,13 +136,15 @@ void DoUnfolding() {
       for (Int_t t = 0; t < nT; t++) {
 
         // don't double count priors...
-        const Bool_t isPyth   = (p == 0);
-        const Bool_t isExpo   = (p == 3);
+        const Bool_t isPyth   = (P[p] == 0);
+        const Bool_t isExpo   = (P[p] == 3);
+        const Bool_t isPowr   = (P[p] == 4);
         const Bool_t isFirstN = (n == 0);
         const Bool_t isFirstT = (t == 0);
         const Bool_t isFirst  = (isFirstN || isFirstT);
-        if (isPyth && !isFirst) continue;
-        if (isExpo && !isFirst) continue;
+        if (isPyth && !isFirst)  continue;
+        if (isExpo && !isFirstN) continue;
+        if (isPowr && !isFirstN) continue;
 
         // for file names
         const Double_t nPrior = N[n];

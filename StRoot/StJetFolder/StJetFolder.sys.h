@@ -145,6 +145,13 @@ void StJetFolder::InitializePriors() {
       _hPrior -> Reset("ICE");
       _hPrior -> FillRandom("fExponential", _nMC);
       break;
+    case 4:
+      _hPrior -> Reset("ICE");
+      for (UInt_t iMC = 0; iMC < _nMC; iMC++) {
+        const Double_t p = _fPowerLaw -> GetRandom(0.2, _uMax);
+        _hPrior -> Fill(p);
+      }
+      break;
   }
 
   const Double_t iPar   = hAfterEff -> Integral();

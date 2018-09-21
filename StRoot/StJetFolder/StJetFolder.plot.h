@@ -727,6 +727,9 @@ TString* StJetFolder::CreateTitle() {
     case 3:
       pTxt.Append("Exponential");
       break;
+    case 4:
+      pTxt.Append("Power");
+      break;
   }
 
   // determine method
