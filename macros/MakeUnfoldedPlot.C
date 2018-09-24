@@ -34,7 +34,7 @@ static const UInt_t NRebin(2);
 static const UInt_t NRebinVar(16);
 static const Bool_t DoRebin(false);
 static const Bool_t DoVariableRebin(false);
-static const Bool_t DoGammaRichPlot(false);
+static const Bool_t DoGammaRichPlot(true);
 static const Bool_t DoGammaSubtraction(false);
 
 
@@ -46,25 +46,25 @@ void MakeUnfoldedPlot() {
   cout << "\n  Plotting unfolded distribution..." << endl;
 
   // io parameters
-  const TString sOut("unfoldVsPythia.checkOn1520with920.et1520vz55gamRich.r02a005rm1chrg.p0m2k10.root");
-  const TString sInU("pp200r9.checkOn1520with920response.et1520vz55gam.r02a005rm1chrg.p0m2k10n58t4.root");
-  const TString sInP("input/pp200py.pTbinRes.eTtrg1520pi0.nTrg500KpTtrk20hTrk1hTrg09.r02a005rm1chrg.d16m8y2018.root");
-  const TString sHistU("hUnfolded");
-  const TString sHistP("Pi0/hJetPtCorrP");
+  const TString sOut("summedErrorsvsPythia.sysVsStat.et911vz55pi0.r02a005rm1chrg.d23m9y2018.root");
+  const TString sInU("sysFinished/summedSystematics.et911vz55pi0.r02a005rm1chrg.d21m9y2018.root");
+  const TString sInP("input/pp200py8.defaultResponse.pTbinRes.et911pi0.r02a005rm1chrg.dr02q015185.root");
+  const TString sHistU("hSystematics");
+  const TString sHistP("hParticle");
 
   // plot parameters
   const TString sTitle("");
-  const TString sNameU("hUnfold");
+  const TString sNameU("hSystematics");
   const TString sNameP("hPythia");
   const TString sTitleX("p_{T}^{reco} = p_{T}^{jet} - #rhoA^{jet} [GeV/c]");
   const TString sTitleY("(1/N^{trg}) dN^{jet}/d(p_{T}^{reco} #eta^{jet}) [GeV/c]^{-1}");
-  const TString sTitleR("unfold / pythia");
-  const TString sLabelU("SVD, k_{reg} = 10 [#gamma^{rich}]");
-  const TString sLabelP("pythia [#pi^{0}]");
+  const TString sTitleR("unfold / particle");
+  const TString sLabelU("unfolded [sys.]");
+  const TString sLabelP("pythia");
 
   // text parameters
   const TString sSys("pp-collisions, #sqrt{s} = 200 GeV");
-  const TString sTrg("E_{T}^{trg} #in (15, 20) GeV");
+  const TString sTrg("#pi^{0} trigger, E_{T}^{trg} #in (9, 11) GeV");
   const TString sJet("anti-k_{T}, R = 0.2");
   const TString sTyp("#bf{charged jets}");
 
@@ -76,13 +76,13 @@ void MakeUnfoldedPlot() {
   const UInt_t   fColGR(879);
   const UInt_t   fColP[NHist] = {859, 921, 859};
   const UInt_t   fColG[NHist] = {899, 921, 899};
-  const TString  sFileGam("pp200r9.binByBinTest.et911vz55gam.r02a005rm1chrg.p0m3k0n58t4.root");
-  const TString  sFilePi0("pp200r9.binByBinTest.et911vz55pi0.r02a005rm1chrg.p0m3k0n58t4.root");
-  const TString  sHistGam("hUnfolded");
+  const TString  sFileGam("sysFinished/summedSystematics.et911vz55pi0.r02a005rm1chrg.d21m9y2018.root");
+  const TString  sFilePi0("sysEt11/pp200r9.forSys.et1115vz55pi0.r02a005rm1chrg.p0m1k3n58t4.root");
+  const TString  sHistGam("hStatistics");
   const TString  sHistPi0("hUnfolded");
-  const TString  sNameGR("hGammaRich");
-  const TString  sLabelGR("unfolded [#gamma^{rich}]");
-  const Double_t gammaPurity(0.650);
+  const TString  sNameGR("hStatistics");
+  const TString  sLabelGR("unfolded [stat.]");
+  const Double_t gammaPurity(0.52027 - 0.0356863);
 
   // misc parameters
   const Double_t plotRange[NPlot]    = {-1., 37.};
@@ -115,6 +115,24 @@ void MakeUnfoldedPlot() {
   cout << "    Grabbed histograms." << endl;
 
 
+  // grab gamma-rich histogram (if need be)
+  TH1D *hGamRich;
+  if (DoGammaRichPlot) {
+    TFile *fGam = new TFile(sFileGam.Data(), "read");
+    if (!fGam) {
+      cerr << "PANIC: couldn't open gamma-rich file!" << endl;
+      return;
+    }
+    hGamRich = (TH1D*) fGam -> Get(sHistGam.Data());
+    if (!hGamRich) {
+      cerr << "PANIC: couldn't grab gamma-rich histogram!" << endl;
+      return;
+    }
+    hGamRich -> SetName(sNameGR.Data());
+    cout << "    Grabbed gamma-rich histogram." << endl;
+  }
+
+
   // do gamma-subtraction (if need be)
   if (DoGammaSubtraction) {
     TFile *fPi0 = new TFile(sFilePi0.Data(), "read");
@@ -136,6 +154,7 @@ void MakeUnfoldedPlot() {
     fPi0    -> Close();
     cout << "    Did gamma subtraction." << endl;
   }
+  fOut -> cd();
 
 
   // rebin (if need be)
@@ -186,7 +205,7 @@ void MakeUnfoldedPlot() {
     cout << "    Rebinned histograms (variable)." << endl;
   }
 
-  // calculate ratio
+  // calculate ratio(s)
   TH1D *hRatio = (TH1D*) hUnfold -> Clone();
   hRatio -> SetName("hRatio");
 
@@ -214,7 +233,39 @@ void MakeUnfoldedPlot() {
     }  // end bin loop
   }
   hRatio -> GetXaxis() -> SetRangeUser(plotRange[0], plotRange[1]);
-  cout << "    Calculated ratio." << endl;
+
+
+  TH1D *hRatioGR;
+  if (DoGammaRichPlot) {
+    hRatioGR = (TH1D*) hGamRich -> Clone();
+    hRatioGR -> SetName("hRatioStat");
+
+    const UInt_t goodDivGR = hRatioGR -> Divide(hGamRich, hPythia, 1., 1.);
+    const UInt_t nBinGR    = hGamRich -> GetNbinsX();
+    if (goodDivGR == 0) {
+      for (UInt_t iBinGR = 0; iBinGR < nBinGR; iBinGR++) {
+        const UInt_t   iBinP = hPythia  -> FindBin(hGamRich -> GetBinCenter(iBinGR));
+        const Double_t num   = hGamRich -> GetBinContent(iBinGR);
+        const Double_t den   = hPythia  -> GetBinContent(iBinP);
+        const Double_t nErr  = hGamRich -> GetBinError(iBinGR);
+        const Double_t dErr  = hGamRich -> GetBinError(iBinP);
+        const Double_t nRel  = nErr / num;
+        const Double_t dRel  = dErr / den;
+        const Double_t ratio = num / den;
+        const Double_t error = ratio * TMath::Sqrt((nRel * nRel) + (dRel * dRel));
+        if (den > 0.) {
+          hRatioGR -> SetBinContent(iBinGR, ratio);
+          hRatioGR -> SetBinError(iBinGR, error);
+        }
+        else {
+          hRatioGR -> SetBinContent(iBinGR, 0.);
+          hRatioGR -> SetBinError(iBinGR, 0.);
+        }
+      }  // end bin loop
+    }
+    hRatioGR -> GetXaxis() -> SetRangeUser(plotRange[0], plotRange[1]);
+  }
+  cout << "    Calculated ratio(s)." << endl;
 
 
   // set styles
@@ -310,10 +361,58 @@ void MakeUnfoldedPlot() {
   hRatio  -> GetYaxis() -> SetLabelFont(fTxt);
   hRatio  -> GetYaxis() -> SetLabelSize(fLab[0]);
   hRatio  -> GetYaxis() -> CenterTitle(fCnt);
+  if (DoGammaRichPlot) {
+    hGamRich  -> SetMarkerColor(fColGR);
+    hGamRich  -> SetMarkerStyle(fMarGR);
+    hGamRich  -> SetFillColor(fColGR);
+    hGamRich  -> SetFillStyle(fFilGR);
+    hGamRich  -> SetLineColor(fColGR);
+    hGamRich  -> SetLineStyle(fLinGR);
+    hGamRich  -> SetLineWidth(fWidGR);
+    hGamRich  -> SetTitle(sTitle.Data());
+    hGamRich  -> SetTitleFont(fTxt);
+    hGamRich  -> GetXaxis() -> SetTitle(sTitleX.Data());
+    hGamRich  -> GetXaxis() -> SetTitleFont(fTxt);
+    hGamRich  -> GetXaxis() -> SetTitleSize(fTit[1]);
+    hGamRich  -> GetXaxis() -> SetTitleOffset(fOffX[1]);
+    hGamRich  -> GetXaxis() -> SetLabelFont(fTxt);
+    hGamRich  -> GetXaxis() -> SetLabelSize(fLab[1]);
+    hGamRich  -> GetXaxis() -> CenterTitle(fCnt);
+    hGamRich  -> GetYaxis() -> SetTitle(sTitleY.Data());
+    hGamRich  -> GetYaxis() -> SetTitleFont(fTxt);
+    hGamRich  -> GetYaxis() -> SetTitleSize(fTit[1]);
+    hGamRich  -> GetYaxis() -> SetTitleOffset(fOffY[1]);
+    hGamRich  -> GetYaxis() -> SetLabelFont(fTxt);
+    hGamRich  -> GetYaxis() -> SetLabelSize(fLab[1]);
+    hGamRich  -> GetYaxis() -> CenterTitle(fCnt);
+    hRatioGR  -> SetMarkerColor(fColGR);
+    hRatioGR  -> SetMarkerStyle(fMarGR);
+    hRatioGR  -> SetFillColor(fColGR);
+    hRatioGR  -> SetFillStyle(fFilGR);
+    hRatioGR  -> SetLineColor(fColGR);
+    hRatioGR  -> SetLineStyle(fLinGR);
+    hRatioGR  -> SetLineWidth(fWidGR);
+    hRatioGR  -> SetTitle(sTitle.Data());
+    hRatioGR  -> SetTitleFont(fTxt);
+    hRatioGR  -> GetXaxis() -> SetTitle(sTitleX.Data());
+    hRatioGR  -> GetXaxis() -> SetTitleFont(fTxt);
+    hRatioGR  -> GetXaxis() -> SetTitleSize(fTit[0]);
+    hRatioGR  -> GetXaxis() -> SetTitleOffset(fOffX[0]);
+    hRatioGR  -> GetXaxis() -> SetLabelFont(fTxt);
+    hRatioGR  -> GetXaxis() -> SetLabelSize(fLab[0]);
+    hRatioGR  -> GetXaxis() -> CenterTitle(fCnt);
+    hRatioGR  -> GetYaxis() -> SetTitle(sTitleR.Data());
+    hRatioGR  -> GetYaxis() -> SetTitleFont(fTxt);
+    hRatioGR  -> GetYaxis() -> SetTitleSize(fTit[0]);
+    hRatioGR  -> GetYaxis() -> SetTitleOffset(fOffY[0]);
+    hRatioGR  -> GetYaxis() -> SetLabelFont(fTxt);
+    hRatioGR  -> GetYaxis() -> SetLabelSize(fLab[0]);
+    hRatioGR  -> GetYaxis() -> CenterTitle(fCnt);
+  }
   cout << "    Set styles." << endl;
 
 
-  // make legend
+  // make legend(s)
   const UInt_t  fColLe(0);
   const UInt_t  fFilLe(0);
   const UInt_t  fLinLe(0);
@@ -327,7 +426,21 @@ void MakeUnfoldedPlot() {
   leg -> SetTextAlign(fAln);
   leg -> AddEntry(hPythia, sLabelP.Data());
   leg -> AddEntry(hUnfold, sLabelU.Data());
-  cout << "    Made legend." << endl;
+  if (DoGammaRichPlot)
+    leg -> AddEntry(hGamRich, sLabelGR.Data());
+
+  TLegend *legR = new TLegend(fLegXY[0], fLegXY[1], fLegXY[2], fLegXY[3]);
+  legR -> SetFillColor(fColLe);
+  legR -> SetFillStyle(fFilLe);
+  legR -> SetLineColor(fColLe);
+  legR -> SetLineStyle(fLinLe);
+  legR -> SetTextFont(fTxt);
+  legR -> SetTextAlign(fAln);
+  if (DoGammaRichPlot) {
+    legR -> AddEntry(hRatio, sLabelU.Data());
+    legR -> AddEntry(hRatioGR, sLabelGR.Data());
+  }
+  cout << "    Made legend(s)." << endl;
 
   // make text
   const UInt_t fColTx(0);
@@ -412,9 +525,15 @@ void MakeUnfoldedPlot() {
   pPad2   -> Draw();
   pPad1   -> cd();
   hRatio  -> Draw("E5");
+  if (DoGammaRichPlot) {
+    hRatioGR -> Draw("SAME E5");
+    legR     -> Draw();
+  }
   line    -> Draw();
   pPad2   -> cd();
   hUnfold -> Draw("E5");
+  if (DoGammaRichPlot)
+    hGamRich -> Draw("SAME E5");
   hPythia -> Draw("SAME HIST C");
   leg     -> Draw();
   txt     -> Draw();
@@ -429,11 +548,17 @@ void MakeUnfoldedPlot() {
   hUnfold -> Write();
   hPythia -> Write();
   hRatio  -> Write();
+  if (DoGammaRichPlot)
+    hGamRich -> Write();
   fOut    -> Close();
   fInU    -> cd();
   fInU    -> Close();
   fInP    -> cd();
   fInP    -> Close();
+  if (DoGammaRichPlot) {
+    fGam  -> cd();
+    fGam  -> Close();
+  }
   cout << "  Plot made!\n" << endl;
 
 }
