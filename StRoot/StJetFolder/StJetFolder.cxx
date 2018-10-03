@@ -4,9 +4,10 @@
 //
 // This class handles the unfolding of a provided spectrum.  This file
 // contains the 'Init()', 'Unfold()', 'Backfold()', and 'Finish()'
-// routines.
+// routines.   Pearson Coefficient calculation adapted from Rhagav K.
+// Elayavalli.
 //
-// Last updated: 09.12.2018
+// Last updated: 10.03.2018
 
 
 #define StJetFolder_cxx
@@ -56,6 +57,7 @@ void StJetFolder::Unfold(Double_t &chi2unfold) {
   RooUnfoldTUnfold  *tun;
   RooUnfoldInvert   *inv;
   RooUnfoldErrors   *err;
+  TMatrixD          *cov;
   switch (_method) {
     case 0:
       _hUnfolded = (TH1D*) _hMeasured -> Clone("hUnfolded");
@@ -63,34 +65,38 @@ void StJetFolder::Unfold(Double_t &chi2unfold) {
     case 1:
       bay        = new RooUnfoldBayes(_response, _hMeasured, _kReg);
       err        = new RooUnfoldErrors(_nToy, bay);
-      // TEST [09.20.2018]
-      bay        -> IncludeSystematics();
-      _hUnfolded = (TH1D*) bay -> Hreco();
+      cov        = (TMatrixD*) bay -> Ereco().Clone();
+      _hUnfolded = (TH1D*)     bay -> Hreco();
       break;
     case 2:
       svd        = new RooUnfoldSvd(_response, _hMeasured, _kReg, _nToy);
       err        = new RooUnfoldErrors(_nToy, svd);
-      _hUnfolded = (TH1D*) svd -> Hreco();
+      cov        = (TMatrixD*) svd -> Ereco().Clone();
+      _hUnfolded = (TH1D*)     svd -> Hreco();
       break;
     case 3:
       bin        = new RooUnfoldBinByBin(_response, _hMeasured);
       err        = new RooUnfoldErrors(_nToy, bin);
-      _hUnfolded = (TH1D*) bin -> Hreco();
+      cov        = (TMatrixD*) bin -> Ereco().Clone();
+      _hUnfolded = (TH1D*)     bin -> Hreco();
       break;
     case 4:
       tun        = new RooUnfoldTUnfold(_response, _hMeasured, TUnfold::kRegModeDerivative);
       err        = new RooUnfoldErrors(_nToy, tun);
-      _hUnfolded = (TH1D*) tun -> Hreco();
+      cov        = (TMatrixD*) tun -> Ereco().Clone();
+      _hUnfolded = (TH1D*)     tun -> Hreco();
       break;
     case 5:
       inv        = new RooUnfoldInvert(_response, _hMeasured);
       err        = new RooUnfoldErrors(_nToy, inv);
-      _hUnfolded = (TH1D*) inv -> Hreco();
+      cov        = (TMatrixD*) inv -> Ereco().Clone();
+      _hUnfolded = (TH1D*)     inv -> Hreco();
       break;
   }
 
-  // correct for efficiency, grab errors, and grab D vector
+  // correct for efficiency, calculate pearson coef's, grab errors, and grab D vector
   _hUnfolded -> Divide(_hEfficiency);
+  _hPearson  = GetPearsonCoefficient(cov, _pearsonDebug, "hPearson");
   switch (_method) {
     case 0:
       _hUnfoldErrors = (TH1D*) _hUnfolded -> Clone();
@@ -209,6 +215,7 @@ void StJetFolder::Finish() {
   _hSVvector     -> SetName("hSVvector");
   _hUnfoldErrors -> SetName("hUnfoldErrors");
   _hEfficiency   -> SetName("hEfficiency");
+  _hPearson      -> SetName("hPearson");
   _hResponse     -> SetName("hResponse");
 
 
@@ -228,6 +235,7 @@ void StJetFolder::Finish() {
   _hUnfoldVsPriRatio  -> Write();
   _hSmearVsMeasRatio  -> Write();
   _hUnfoldVsMeasRatio -> Write();
+  _hPearson           -> Write();
   _hDvector           -> Write();
   _hSVvector          -> Write();
   _hUnfoldErrors      -> Write();

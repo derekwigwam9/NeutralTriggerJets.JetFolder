@@ -231,6 +231,9 @@ void StJetFolder::SetTriggerInfo(const Int_t trigger, const Double_t eTmin, cons
     case 2:
       tTxt = "#pi^{0} trigger, ";
       break;
+    case 3:
+      tTxt = "h^{#pm} trigger, ";
+      break;
   }
   _trigger = trigger;
 

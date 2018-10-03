@@ -3,9 +3,10 @@
 // 02.17.2017
 //
 // This class handles the unfolding of a provided spectrum.  This file
-// encapsulates various mathematical routines.
+// encapsulates various mathematical routines.  Pearson Coefficient
+// calculation adapted from Rhagav K. Elayavalli.
 //
-// Last updated: 07.15.2018
+// Last updated: 10.03.2018
 
 
 #pragma once
@@ -64,6 +65,86 @@ TH1D* StJetFolder::CalculateRatio(const TH1D *hA, const TH1D *hB, const Char_t *
   return hR;
 
 }  // end 'CalculateRatio(TH1D*, TH1D*, TH1D*)'
+
+
+
+TH2D* StJetFolder::GetPearsonCoefficient(TMatrixD *mCovMat, Bool_t isInDebugMode, TString sHistName) {
+
+  // for debugging
+  UInt_t iStart(0);
+  UInt_t iSkip(1);
+  if (isInDebugMode) {
+    cerr << "\n ======== Calculating Pearson Coefficients ======== " << endl;
+  }
+
+  // create matrix
+  UInt_t   nRows   = mCovMat -> GetNrows();
+  UInt_t   nCols   = mCovMat -> GetNcols();
+  TH2D     *hPears = new TH2D(sHistName.Data(), "Pearson Coefficients" , nRows, 0, nRows, nCols, 0, nCols);
+  TMatrixD *mPears = (TMatrixD*) mCovMat -> Clone();
+  if (isInDebugMode) {
+    cerr << "  Looping over covariance matrix:\n"
+         << "    (nRows, nCols) = (" << nRows << ", " << nCols << ")"
+         << endl;
+  }
+
+  // loop over covariance matrix
+  UInt_t nNan(0);
+  UInt_t nOne(0);
+  UInt_t nEntries(0);
+  for (UInt_t iRow = iStart; iRow < nRows; iRow++) {
+    for (UInt_t iCol = iStart; iCol < nCols; iCol++) {
+
+      // calculate pearson coefficient
+      Double_t covYY   = (*mCovMat)(iRow, iRow);
+      Double_t covXX   = (*mCovMat)(iCol, iCol);
+      Double_t covXY   = (*mCovMat)(iRow, iCol);
+      Double_t pearson = covXY / TMath::Sqrt(covXX * covYY);
+
+      // checks
+      const Bool_t isNotMoreThan1 = (TMath::Abs(pearson) <= 1.);
+      const Bool_t wasSkippedDiag = (((iRow % iSkip) == 0) && ((iCol % iSkip) == 0));
+      const Bool_t wasSkipped     = (((iRow % iSkip) == 0) || ((iCol % iSkip) == 0));
+
+      // NaN protection
+      Bool_t isNotNan(true);
+      if (pearson != pearson) {
+        pearson = -10.;
+        if (isInDebugMode && wasSkipped) {
+	  cerr << "    WARNING: NaN! pearson(" << iRow << ", " << iCol << ") = -10." << endl;
+        }
+        isNotNan = false;
+        nNan++;
+        nOne++;
+      }  // end NaN protection
+      
+      // set histogram values
+      (*mPears)(iRow, iCol) = pearson;
+      hPears -> SetBinContent(iRow + 1, iCol + 1, pearson);
+      if (isInDebugMode && isNotNan && !isNotMoreThan1) {
+	cerr << "    WARNING: |pearson|(" << iRow << ", " << iCol << ") = " << TMath::Abs(pearson) << endl;
+        nOne++;
+      }
+      if (isInDebugMode && isNotNan && wasSkippedDiag) {
+	cerr << "    pearson(" << iRow << ", " << iCol << ") = " << ( TMatrixD (*mPears) )(iRow, iCol) << endl;
+      }
+      nEntries++;
+
+    } // end column loop
+  } // end row loop
+
+  if(isInDebugMode) {
+    cerr << "  Loop finished:\n"
+         << "    No. of entries in total         = " << nEntries << "\n"
+         << "    No. of entries w/ |pearson| > 1 = " << nOne << "\n"
+         << "    No. of entries w/ pearson = NaN = " << nNan << "\n"
+         << " ========      Calculation finished!!      ======== \n"
+         << endl;
+  }
+  return hPears;
+
+}  // end 'GetPearsonCoefficienct(TMatrixD*, Bool_t, TString)'
+
 
 
 Double_t StJetFolder::Smear(const Double_t yP) {

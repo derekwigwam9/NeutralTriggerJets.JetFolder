@@ -13,7 +13,9 @@
 //   backfold -- unfolded spectrum with efficiencies, smearing,
 //               etc. applied.
 //
-// Last updated: 09.12.2018
+// Pearson Coefficient calculation adapted from Rhagav K. Elayavalli.
+//
+// Last updated: 10.03.2018
 
 
 #ifndef StJetFolder_h
@@ -36,6 +38,7 @@
 #include "TLegend.h"
 #include "TProfile.h"
 #include "TRandom3.h"
+#include "TMatrixD.h"
 #include "TPaveText.h"
 #include "TSVDUnfold.h"
 // RooUnfold includes
@@ -52,6 +55,7 @@ using namespace std;
 
 // global constants
 const Int_t    Nflag   = 11;
+const Bool_t   Debug   = false;
 const Double_t Mpion   = 0.140;
 const Double_t UdefMax = 100.;
 const Double_t BdefMax = 100.;
@@ -62,7 +66,7 @@ class StJetFolder {
 
 public:
 
-  StJetFolder(const Char_t *oFile);
+  StJetFolder(const Char_t *oFile, const Bool_t pearDebug=Debug);
   virtual ~StJetFolder();
 
   // public methods ('StJetFolder.io.h')
@@ -99,6 +103,7 @@ private:
   Int_t     _kReg;
   Int_t     _nMC;
   Int_t     _nToy;
+  Bool_t    _pearsonDebug;
   Bool_t    _flag[Nflag];
   Double_t  _bPrior;
   Double_t  _mPrior;
@@ -128,6 +133,7 @@ private:
   TH1D      *_hSVvector;
   TH1D      *_hUnfoldErrors;
   TH1D      *_hEfficiency;
+  TH2D      *_hPearson;
   TH2D      *_hResponse;
   TFile     *_fOut;
   TString   *_sEvnt;
@@ -152,8 +158,10 @@ private:
   TString* CreateTitle();
   // private methods ('StJetFolder.math.h')
   TH1D*    CalculateRatio(const TH1D *hA, const TH1D *hB, const Char_t *rName);
+  TH2D*    GetPearsonCoefficient(TMatrixD *mCovMat, Bool_t isInDebugMode=false, TString sHistName="");
   Double_t Smear(const Double_t yP);
   Double_t CalculateChi2(const TH1D *hA, TH1D *hB);
+  
 
 
   ClassDef(StJetFolder, 1)
@@ -165,12 +173,13 @@ private:
 #endif
 #ifdef StJetFolder_cxx
 
-StJetFolder::StJetFolder(const Char_t *oFile) {
+StJetFolder::StJetFolder(const Char_t *oFile, const Bool_t pearDebug) {
 
   _fOut = new TFile(oFile, "recreate");
   for (Int_t i = 0; i < Nflag; i++) {
     _flag[i] = false;
   }
+  _pearsonDebug = pearDebug;
   PrintInfo(0);
 
 }  // end 'StJetFolder(Char_t*)'

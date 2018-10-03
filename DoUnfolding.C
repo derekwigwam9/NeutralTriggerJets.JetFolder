@@ -32,6 +32,8 @@
 //             (~5.8 typically produces good results)
 //   tPrior -- adjusts slope of Levy fncn. (~0.4
 //             typically produces good results)
+//
+// Pearson Coefficient calculation adapted from Rhagav K. Elayavalli.
 
 #include <TSystem>
 #include <fstream>
@@ -51,35 +53,35 @@ class StJetFolder;
 
 
 // input and output files
-static const TString pFile("input/pp200py8.defaultResponse.pTbinRes.et920pi0.r02a005rm1chrg.dr02q015185.root");
-static const TString sFile("input/pp200py8.defaultResponse.pTbinRes.et920pi0.r02a005rm1chrg.dr02q015185.root");
-static const TString mFile("input/pp200r9.pTbinRes.et911vz55.r02a005rm1chrg.d16m8y2018.root");
-static const TString eFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
-static const TString rFile("input/pp200r9embed.pTbinRes.et920vz55.r02a005rm1chrg.dr02q015185.root");
-static const TString oFile("pp200r9.forPriorSysPy8.et911vz55pi0.r02a005rm1chrg");
+static const TString pFile("input/pp200py8.defaultResponse.pTbinRes.et920pt0215pi0.r02a005rm1chrg.dr02q015185.root");
+static const TString sFile("input/pp200py8.defaultResponse.pTbinRes.et920pt0215pi0.r02a005rm1chrg.dr02q015185.root");
+static const TString mFile("input/pp200r9.pTbinRes.et911pt0215vz55.r02rm1chrg.d25m9y2018.root");
+static const TString eFile("input/pp200py8.defaultResponse.pTbinRes.et920pt0215pi0.r02a005rm1chrg.dr02q015185.root");
+static const TString rFile("input/pp200py8.defaultResponse.pTbinRes.et920pt0215pi0.r02a005rm1chrg.dr02q015185.root");
+static const TString oFile("PearsonCoeffTest");
 // input namecycles
 static const TString pName("hParticle");
 static const TString sName("hDetector");
 static const TString mName("Pi0/hJetPtCorrP");
-static const TString eName("hEfficiencyAll");
-static const TString rName("hResponseAll");
+static const TString eName("hEfficiency");
+static const TString rName("hResponse");
 // unfolding parameters (to loop over)
 static const Int_t nM  = 1;
 static const Int_t M[] = {1};
-static const Int_t nK  = 1;
-static const Int_t K[] = {4};
+static const Int_t nK  = 12;
+static const Int_t K[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 // prior parameters (to loop over)
 static const Int_t    nP  = 1;
 static const Int_t    nN  = 1;
 static const Int_t    nT  = 1;
-static const Int_t    P[] = {1};
+static const Int_t    P[] = {0};
 static const Double_t N[] = {5.8};
 static const Double_t T[] = {0.4};
 
 
 // trigger and jet parameters (for plot labels)
 static const Int_t   beam   = 0;        // 0 = "pp", 1 = "AuAu"
-static const Int_t   trig   = 2;        // 0 = "gamma-dir", 1 = "gamma-rich", 2 = "pi0"
+static const Int_t   trig   = 2;        // 0 = "gamma-dir", 1 = "gamma-rich", 2 = "pi0", 3 = "h+-"
 static const Int_t   type   = 0;        // 0 = "charged jets", 1 = "full jets"
 static const Float_t energy = 200.;     // sqrt(s)
 static const Float_t eTmin  = 9.;
@@ -97,6 +99,7 @@ static const Double_t hTrgMax = 0.9;
 // these don't need to be changed
 static const Int_t    nToy     = 10;      // used to calculate covariances
 static const Int_t    nMC      = 100000;  // number of MC iterations for backfolding
+static const Bool_t   debug    = false;   // debug pearson calculation coefficient
 static const Bool_t   smooth   = true;    // smooth efficiency at high pT
 static const Bool_t   noErrors = true;    // remove errors on efficiency
 static const Double_t bPrior   = 1.48;    // normalization of prior
@@ -233,8 +236,8 @@ void DoUnfolding() {
             const Bool_t isSVD      = (method == 2);
             const Bool_t isGoodBayK = (kReg < 6);
             const Bool_t isGoodSvdK = ((kReg > 5) && (kReg < 12));
-            //if (isBay && !isGoodBayK) continue;
-            //if (isSVD && !isGoodSvdK) continue;
+            if (isBay && !isGoodBayK) continue;
+            if (isSVD && !isGoodSvdK) continue;
 
             // create output name
             TString output(oFile);
@@ -253,7 +256,7 @@ void DoUnfolding() {
             // create folder
             Double_t    chi2u = 0.;
             Double_t    chi2b = 0.;
-            StJetFolder f(output.Data());
+            StJetFolder f(output.Data(), debug);
             // set spectra
             f.SetPrior(pFile.Data(), pName.Data());
             f.SetSmeared(sFile.Data(), sName.Data());
