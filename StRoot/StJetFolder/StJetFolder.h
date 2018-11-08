@@ -33,6 +33,8 @@
 #include "TFile.h"
 #include "TMath.h"
 #include "TLine.h"
+#include "TStyle.h"
+#include "TColor.h"
 #include "TString.h"
 #include "TCanvas.h"
 #include "TLegend.h"

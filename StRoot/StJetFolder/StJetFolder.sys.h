@@ -207,6 +207,24 @@ void StJetFolder::InitializePriors() {
   }
   _hEfficiencyDiff -> Divide(hDetEffDif, hParEffDif, 1., 1.);
 
+  // normalize response
+  const UInt_t nXbins = _hResponseDiff -> GetNbinsX();
+  const UInt_t nYbins = _hResponseDiff -> GetNbinsY();
+  for (UInt_t iBinY = 0; iBinY < nYbins; iBinY++) {
+    const Double_t binNorm = _hResponseDiff -> Integral(1, nXbins, iBinY, iBinY);
+    if (binNorm != 0.) {
+      for (UInt_t iBinX = 0; iBinX < nXbins; iBinX++) {
+        const Double_t binVal = _hResponseDiff -> GetBinContent(iBinX, iBinY);
+        const Double_t binErr = _hResponseDiff -> GetBinError(iBinX, iBinY);
+        const Double_t newVal = (binVal / binNorm);
+        const Double_t newErr = (binErr / binNorm);
+        _hResponseDiff -> SetBinContent(iBinX, iBinY, newVal);
+        _hResponseDiff -> SetBinError(iBinX, iBinY, newErr);
+      }  // end x loop
+    }
+  }  // end y loop
+
+
   const Double_t iNorm  = _hPrior    -> Integral();
   const Double_t iDetMC = hSmearNorm -> Integral();
   const Double_t scaleS = iNorm / iDetMC;
