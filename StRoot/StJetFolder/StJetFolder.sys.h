@@ -130,25 +130,46 @@ void StJetFolder::InitializePriors() {
   hSmearNorm -> Reset("ICE");
   hAfterEff  -> Divide(_hEfficiency);
 
+  // for efficiency
+  TH1D *hParEffDif = (TH1D*) _hPrior   -> Clone();
+  TH1D *hDetEffDif = (TH1D*) _hSmeared -> Clone();
+  hParEffDif -> Reset("ICE");
+  hDetEffDif -> Reset("ICE");
+
+  // initialize response and efficiency
+  _hEfficiencyDiff = (TH1D*) _hEfficiency -> Clone();
+  _hResponseDiff   = (TH2D*) _hResponse   -> Clone();
+  _hEfficiencyDiff -> Reset("ICE");
+  _hResponseDiff   -> Reset("ICE");
+
 
   // create particle-level prior
   switch (_prior) {
     case 1:
       _hPrior -> Reset("ICE");
-      _hPrior -> FillRandom("fLevy", _nMC);
+      for (UInt_t iMC = 0; iMC < _nMC; iMC++) {
+        const Double_t l = _fLevy -> GetRandom(XminPrior, _uMax);
+        _hPrior -> Fill(l);
+      }
       break;
     case 2:
       _hPrior -> Reset("ICE");
-      _hPrior -> FillRandom("fTsallis", _nMC);
+      for (UInt_t iMC = 0; iMC < _nMC; iMC++) {
+        const Double_t t = _fTsallis -> GetRandom(XminPrior, _uMax);
+        _hPrior -> Fill(t);
+      }
       break;
     case 3:
       _hPrior -> Reset("ICE");
-      _hPrior -> FillRandom("fExponential", _nMC);
+      for (UInt_t iMC = 0; iMC < _nMC; iMC++) { 
+        const Double_t e = _fExponential -> GetRandom(XminPrior, _uMax);
+        _hPrior -> Fill(e);
+      }
       break;
     case 4:
       _hPrior -> Reset("ICE");
       for (UInt_t iMC = 0; iMC < _nMC; iMC++) {
-        const Double_t p = _fPowerLaw -> GetRandom(0.2, _uMax);
+        const Double_t p = _fPowerLaw -> GetRandom(XminPrior, _uMax);
         _hPrior -> Fill(p);
       }
       break;
@@ -170,22 +191,26 @@ void StJetFolder::InitializePriors() {
   }
 
 
-  // create detector-level prior
+  // create detector-level prior and response
   _hSmeared -> Reset("ICE");
   for (Int_t iMC = 0; iMC < _nMC; iMC++) {
     const Double_t p = _hPrior -> GetRandom();
     const Double_t s = Smear(p);
+    const UInt_t   e = ApplyEff(p);
+    if ((s > -1000.) && (e == 1)) {
+      _hSmeared      -> Fill(s);
+      _hResponseDiff -> Fill(s, p);
+      hDetEffDif     -> Fill(p);
+    }
     hSmearNorm -> Fill(p);
-    if (s > -1000.) _hSmeared -> Fill(s);
+    hParEffDif -> Fill(p);
   }
+  _hEfficiencyDiff -> Divide(hDetEffDif, hParEffDif, 1., 1.);
 
   const Double_t iNorm  = _hPrior    -> Integral();
   const Double_t iDetMC = hSmearNorm -> Integral();
   const Double_t scaleS = iNorm / iDetMC;
   if (iNorm > 0.) _hSmeared -> Scale(scaleS);
-
-  // apply efficiency
-  _hSmeared -> Multiply(_hEfficiency);
 
 }  // end 'InitializePriors()'
 

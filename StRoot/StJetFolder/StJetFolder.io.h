@@ -338,16 +338,19 @@ void StJetFolder::SetPriorParameters(const Int_t prior, const Double_t bPrior, c
   _mPrior = mPrior;
   _nPrior = nPrior;
   _tPrior = tPrior;
+  if (_prior > 0)
+    _differentPrior = true;
+  else
+    _differentPrior = false;
 
   // create prior functions
   const Double_t nBinsP = _hPrior -> GetNbinsX();
-  const Double_t startP = _hPrior -> GetBinLowEdge(1);
   const Double_t stopP  = _hPrior -> GetBinLowEdge(nBinsP + 1);
-  const Double_t powMin = 0.2;
+  const Double_t startP = XminPrior;
   _fLevy        = new TF1("fLevy", StJetFolder::Levy, startP, stopP, 4);
   _fTsallis     = new TF1("fTsallis", StJetFolder::Tsallis, startP, stopP, 3);
   _fExponential = new TF1("fExponential", StJetFolder::Exponential, startP, stopP, 2);
-  _fPowerLaw    = new TF1("fPowerLaw", StJetFolder::PowerLaw, powMin, stopP, 2);
+  _fPowerLaw    = new TF1("fPowerLaw", StJetFolder::PowerLaw, startP, stopP, 2);
   _fLevy        -> SetParameters(_bPrior, _mPrior, _nPrior, _tPrior);
   _fTsallis     -> SetParameters(_bPrior, _nPrior, _tPrior);
   _fExponential -> SetParameters(_bPrior, _tPrior);

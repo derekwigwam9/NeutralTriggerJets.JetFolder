@@ -30,10 +30,14 @@ void StJetFolder::Init() {
   Bool_t inputOK = CheckFlags();
   if (!inputOK) assert(inputOK);
 
-  Bool_t useDifferentPrior = (_prior > 0);
-  if (useDifferentPrior) InitializePriors();
+  // initialize response
+  if (_differentPrior) {
+    InitializePriors();
+    _response = new RooUnfoldResponse(0, 0, _hResponseDiff);
+  }
+  else
+    _response = new RooUnfoldResponse(0, 0, _hResponse);
 
-  _response = new RooUnfoldResponse(0, 0, _hResponse);
   if (_response) {
     PrintInfo(4);
     _flag[10] = true;
@@ -95,7 +99,12 @@ void StJetFolder::Unfold(Double_t &chi2unfold) {
   }
 
   // correct for efficiency, calculate pearson coef's, grab errors, and grab D vector
-  _hUnfolded -> Divide(_hEfficiency);
+  if (_differentPrior)
+    _hUnfolded -> Divide(_hEfficiencyDiff);
+  else
+    _hUnfolded -> Divide(_hEfficiency);
+
+
   _hPearson  = GetPearsonCoefficient(cov, _pearsonDebug, "hPearson");
   switch (_method) {
     case 0:
@@ -217,11 +226,15 @@ void StJetFolder::Finish() {
   _hEfficiency   -> SetName("hEfficiency");
   _hPearson      -> SetName("hPearson");
   _hResponse     -> SetName("hResponse");
-
+  if (_differentPrior) {
+    _hEfficiencyDiff -> SetName("hEfficiencyDiff");
+    _hResponseDiff   -> SetName("hResponseDiff");
+  }
 
   CreateLabel();
   CreatePlots();
   PrintInfo(11);
+
 
   // save and close file
   _fOut               -> cd();
@@ -241,7 +254,10 @@ void StJetFolder::Finish() {
   _hUnfoldErrors      -> Write();
   _hEfficiency        -> Write();
   _hResponse          -> Write();
-  _label              -> Write();
+  if (_differentPrior) {
+    _hResponseDiff    -> Write();
+    _hEfficiencyDiff  -> Write();
+  }
   _fOut               -> Close();
   PrintInfo(12);
 

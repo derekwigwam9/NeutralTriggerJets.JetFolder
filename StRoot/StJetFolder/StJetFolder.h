@@ -54,11 +54,12 @@ using namespace std;
 
 
 // global constants
-const Int_t    Nflag   = 11;
-const Bool_t   Debug   = false;
-const Double_t Mpion   = 0.140;
-const Double_t UdefMax = 100.;
-const Double_t BdefMax = 100.;
+const Int_t    Nflag     = 11;
+const Bool_t   Debug     = false;
+const Double_t Mpion     = 0.140;
+const Double_t UdefMax   = 100.;
+const Double_t BdefMax   = 100.;
+const Double_t XminPrior = 0.1;
 
 
 
@@ -103,6 +104,7 @@ private:
   Int_t     _kReg;
   Int_t     _nMC;
   Int_t     _nToy;
+  Bool_t    _differentPrior;
   Bool_t    _pearsonDebug;
   Bool_t    _flag[Nflag];
   Double_t  _bPrior;
@@ -133,15 +135,19 @@ private:
   TH1D      *_hSVvector;
   TH1D      *_hUnfoldErrors;
   TH1D      *_hEfficiency;
+  TH1D      *_hEfficiencyDiff;
   TH2D      *_hPearson;
   TH2D      *_hResponse;
+  TH2D      *_hResponseDiff;
   TFile     *_fOut;
   TString   *_sEvnt;
   TString   *_sTrig;
   TString   *_sJet1;
   TString   *_sJet2;
   TString   *_sJet3;
+  TRandom   *_rando;
   TPaveText *_label;
+  TPaveText *_pInfo;
   // RooUnfold members
   RooUnfoldResponse *_response;
 
@@ -155,10 +161,11 @@ private:
   void     CreatePlots();
   void     ResizeString(TString &str, const Int_t nDec);
   void     DrawHistogram(TH1 *h, const Char_t *option, const Int_t mColor, const Int_t lColor, const Int_t fColor, const Int_t mStyle, const Int_t lStyle, const Int_t fStyle, const Double_t mSize);
-  TString* CreateTitle();
+  void     CreateUnfoldInfo();
   // private methods ('StJetFolder.math.h')
   TH1D*    CalculateRatio(const TH1D *hA, const TH1D *hB, const Char_t *rName);
   TH2D*    GetPearsonCoefficient(TMatrixD *mCovMat, Bool_t isInDebugMode=false, TString sHistName="");
+  UInt_t   ApplyEff(const Double_t par);
   Double_t Smear(const Double_t yP);
   Double_t CalculateChi2(const TH1D *hA, TH1D *hB);
   
@@ -175,7 +182,8 @@ private:
 
 StJetFolder::StJetFolder(const Char_t *oFile, const Bool_t pearDebug) {
 
-  _fOut = new TFile(oFile, "recreate");
+  _fOut  = new TFile(oFile, "recreate");
+  _rando = new TRandom();
   for (Int_t i = 0; i < Nflag; i++) {
     _flag[i] = false;
   }

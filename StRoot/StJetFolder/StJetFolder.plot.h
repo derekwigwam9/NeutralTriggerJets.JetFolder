@@ -225,6 +225,8 @@ void StJetFolder::CreatePlots() {
   pChi2U -> SetTextAlign(12);
   pChi2U -> AddText(x2txtU.Data());
 
+  // generate unfolding info
+  CreateUnfoldInfo();
 
 
   // create blank histograms
@@ -232,7 +234,6 @@ void StJetFolder::CreatePlots() {
   const Int_t    x1m  = _hMeasured -> GetBinLowEdge(1);
   const Int_t    x2m  = _hMeasured -> GetBinLowEdge(nM + 1);
   const Double_t wM   = (x2m - x1m) / nM;
-  const TString  *sUp = CreateTitle();
 
   Int_t  nX  = (Int_t) ((x2 - x1) * wM);
   TH1D  *hUp = new TH1D("hUpper", "", nX, x1, x2);
@@ -251,7 +252,7 @@ void StJetFolder::CreatePlots() {
   hUp -> GetYaxis() -> SetLabelFont(42);
   hUp -> GetYaxis() -> SetLabelSize(0.04);
   hUp -> GetYaxis() -> SetRangeUser(y1up, y2up);
-  hUp -> SetTitle(sUp -> Data());
+  hUp -> SetTitle("");
   hUp -> SetTitleFont(42);
 
   Int_t nD  = (Int_t) y2lo;
@@ -314,7 +315,11 @@ void StJetFolder::CreatePlots() {
 
 
   // create response profile
-  TH1D *hResProfile = _hResponse -> ProfileX("hResProfile", 0, -1, "S");
+  TH1D *hResProfile;
+  if (_differentPrior)
+    hResProfile = _hResponseDiff -> ProfileX("hResProfile", 0, -1, "S");
+  else
+    hResProfile = _hResponse -> ProfileX("hResProfile", 0, -1, "S");
   hResProfile -> GetXaxis() -> SetTitle(sXres);
   hResProfile -> GetXaxis() -> SetTitleFont(42);
   hResProfile -> GetXaxis() -> SetTitleSize(0.04);
@@ -399,6 +404,7 @@ void StJetFolder::CreatePlots() {
   }
   lAll   -> Draw();
   _label -> Draw();
+  _pInfo -> Draw();
   cAll   -> Write();
   cAll   -> Close();
 
@@ -449,6 +455,7 @@ void StJetFolder::CreatePlots() {
     DrawHistogram(_hBackfolded, "PE5 same", cB, cB, cB, mB, lB, fB, 1.);
   lBvM   -> Draw();
   _label -> Draw();
+  _pInfo -> Draw();
   cBvM   -> Write();
   cBvM   -> Close();
 
@@ -499,6 +506,7 @@ void StJetFolder::CreatePlots() {
     DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
   lPvU   -> Draw();
   _label -> Draw();
+  _pInfo -> Draw();
   cPvU   -> Write();
   cPvU   -> Close();
 
@@ -542,6 +550,7 @@ void StJetFolder::CreatePlots() {
   DrawHistogram(_hSmeared, "PE2 same", cS, cS, cS, mS, lS, fS, 1.);
   lSvM   -> Draw();
   _label -> Draw();
+  _pInfo -> Draw();
   cSvM   -> Write();
   cSvM   -> Close();
 
@@ -591,6 +600,7 @@ void StJetFolder::CreatePlots() {
     DrawHistogram(_hUnfolded, "PE5 same", cU, cU, cU, mU, lU, fU, 1.);
   lUvM   -> Draw();
   _label -> Draw();
+  _pInfo -> Draw();
   cUvM   -> Write();
   cUvM   -> Close();
 
@@ -634,6 +644,7 @@ void StJetFolder::CreatePlots() {
   DrawHistogram(_hSmeared, "PE2 same", cS, cS, cS, mS, lS, fS, 1.);
   lSvP   -> Draw();
   _label -> Draw();
+  _pInfo -> Draw();
   cSvP   -> Write();
   cSvP   -> Close();
 
@@ -669,11 +680,18 @@ void StJetFolder::CreatePlots() {
   pEfficiency -> Draw();
   // draw histograms
   pResponse   -> cd();
-  _hResponse  -> Draw("colz");
+  if (_differentPrior)
+    _hResponseDiff -> Draw("colz");
+  else
+    _hResponse -> Draw("colz");
   DrawHistogram(hResProfile, "same", cRP, cRP, cRP, mRP, lRP, fRP, 1.);
   pEfficiency -> cd();
-  DrawHistogram(_hEfficiency, "PE2", cM, cM, cM, mM, lM, fM, 1.);
+  if (_differentPrior)
+    DrawHistogram(_hEfficiency, "PE2", cM, cM, cM, mM, lM, fM, 1.);
+  else
+    DrawHistogram(_hEfficiency, "PE2", cM, cM, cM, mM, lM, fM, 1.);
   _label      -> Draw();
+  _pInfo      -> Draw();
   cResponse   -> Write();
   cResponse   -> Close();
 
@@ -710,7 +728,17 @@ void StJetFolder::DrawHistogram(TH1 *h, const Char_t *option, const Int_t mColor
 }  // end 'DrawHistogram(TH1*, Int_t, Int_t, Int_t, Int_t, Int_t, Int_t, Char_t*)'
 
 
-TString* StJetFolder::CreateTitle() {
+void StJetFolder::CreateUnfoldInfo() {
+
+  // initialize TPave
+  _pInfo = new TPaveText(0.7, 0.1, 0.9, 0.3, "NDC NB");
+  _pInfo -> SetFillColor(0);
+  _pInfo -> SetFillStyle(0);
+  _pInfo -> SetLineColor(0);
+  _pInfo -> SetTextColor(1);
+  _pInfo -> SetTextFont(42);
+  _pInfo -> SetTextAlign(12);
+
 
   // determine prior
   TString pTxt("");
@@ -731,33 +759,44 @@ TString* StJetFolder::CreateTitle() {
       pTxt.Append("Power");
       break;
   }
-
-  // determine method
-  TString mTxt("");
-  switch (_method) {
-    case 0:
-      mTxt.Append("No unfolding");
-      break;
-    case 1:
-      mTxt.Append("Bayes.");
-      break;
-    case 2:
-      mTxt.Append("SVD");
-      break;
-    case 3:
-      mTxt.Append("Bin-by-bin");
-      break;
-    case 4:
-      mTxt.Append("TUnfold");
-      break;
-    case 5:
-      mTxt.Append("Matrix inversion");
-      break;
-  }
+  pTxt.Append(" prior");
 
   // convert kReg to a string
   TString kTxt("k_{reg} = ");
   kTxt += _kReg;
+
+  // determine algorithm
+  TString aTxt("");
+  switch (_method) {
+    case 0:
+      aTxt.Append("No unfolding");
+      break;
+    case 1:
+      aTxt.Append("Bayes.");
+      break;
+    case 2:
+      aTxt.Append("SVD");
+      break;
+    case 3:
+      aTxt.Append("Bin-by-bin");
+      break;
+    case 4:
+      aTxt.Append("TUnfold");
+      break;
+    case 5:
+      aTxt.Append("Matrix inversion");
+      break;
+  }
+  aTxt.Append(" algorithm, ");
+  aTxt.Append(kTxt);
+
+  // convert mPrior to a string
+  TString mTxt("");
+  TString mStr("");
+  mStr += _mPrior;
+  ResizeString(mStr, 2);
+  mTxt.Append("M_{prior} = ");
+  mTxt.Append(mStr);
 
   // convert nPrior to a string
   TString nTxt("");
@@ -775,20 +814,37 @@ TString* StJetFolder::CreateTitle() {
   tTxt.Append("T_{prior} = ");
   tTxt.Append(tStr);
 
+  // determine relevant para.'s
+  TString rTxt("");
+  switch (_prior) {
+    case 0:  // pythia
+      break;
+    case 1:  // levy
+      rTxt.Append(mTxt);
+      rTxt.Append(", ");
+      rTxt.Append(nTxt);
+      rTxt.Append(", ");
+      rTxt.Append(tTxt);
+      break;
+    case 2:  // tsallis 
+      rTxt.Append(nTxt);
+      rTxt.Append(", ");
+      rTxt.Append(tTxt);
+      break;
+    case 3:  // expo
+      rTxt.Append(tTxt);
+      break;
+    case 4:  // power
+      rTxt.Append(tTxt);
+      break;
+  }
 
-  // create title
-  TString title("");
-  title.Append(mTxt);
-  title.Append(", ");
-  title.Append(kTxt);
-  title.Append(": ");
-  title.Append(pTxt);
-  title.Append(", ");
-  title.Append(nTxt);
-  title.Append(", ");
-  title.Append(tTxt);
 
-  return new TString(title.Data());
+  // add text
+  _pInfo -> AddText(aTxt.Data());
+  _pInfo -> AddText(pTxt.Data());
+  _pInfo -> AddText(rTxt.Data());
+  return;
 
 }  // end 'CreateTitle()'
 

@@ -147,6 +147,22 @@ TH2D* StJetFolder::GetPearsonCoefficient(TMatrixD *mCovMat, Bool_t isInDebugMode
 
 
 
+UInt_t StJetFolder::ApplyEff(const Double_t par) {
+
+  const UInt_t   bin = _hEfficiency -> FindBin(par);
+  const Double_t eff = _hEfficiency -> GetBinContent(bin);
+  const Double_t ran = _rando       -> Uniform(0., 1.);
+  const Double_t bad = (ran > eff);
+
+  UInt_t returnVal(1);
+  if (bad)
+    returnVal = 0;
+  return returnVal;
+
+}  // end 'ApplyEff(Double_t)'
+
+
+
 Double_t StJetFolder::Smear(const Double_t yP) {
 
   TH1D     *hSmear;
