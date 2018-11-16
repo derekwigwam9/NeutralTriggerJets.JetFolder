@@ -25,7 +25,7 @@ using namespace std;
 
 // global constants
 static const UInt_t NPad(2);
-static const UInt_t NSys(2);
+static const UInt_t NSys(4);
 static const UInt_t NPlot(2);
 static const UInt_t NRebin(2);
 static const UInt_t NRebinVar(16);
@@ -43,11 +43,11 @@ void CalculateSystematicError() {
   cout << "\n  Plotting unfolded distribution..." << endl;
 
   // io parameters
-  const TString sOut("systematics.methodSys.et911vz55pi0.r02a005rm1chrg.d21m9y2018.root");
-  const TString sInD("sysEt9/pp200r9.default.et911vz55pi0.r02a005rm1chrg.p0m1k4n58t4.root");
+  const TString sOut("systematics.priorSys.et1115pt0230vz55pt0230pi0.r02a005rm1chrg.d16m11y2018.root");
+  const TString sInD("sysEt1115r02/pp200r9.default.et1115vz55pt0230pi0.r02a005rm1chrg.p0m1k4n58t27.root");
   const TString sHistD("hUnfolded");
-  const TString sInS[NSys]   = {"sysEt9/pp200r9.forMethodSys.et911vz55pi0.r02a005rm1chrg.p0m3k1n58t4.root", "sysEt9/pp200r9.forRegSys.et911vz55pi0.r02a005rm1chrg.p0m1k5n58t4.root"};
-  const TString sHistS[NSys] = {"hUnfolded", "hUnfolded"};
+  const TString sInS[NSys]   = {"sysEt1115r02/pp200r9.pythiaSys.et1115vz55pi0.r02a005rm1chrg.p0m1k4n58t4.root", "sysEt1115r02/pp200r9.levySys1.et1115vz55pi0.r02a005rm1chrg.p1m1k4n58t4.root", "sysEt1115r02/pp200r9.powSysM.et1115vz55pi0.r02a005rm1chrg.p4m1k4n58t19.root", "sysEt1115r02/pp200r9.powSysP.et1115vz55pi0.r02a005rm1chrg.p4m1k4n58t23.root"};
+  const TString sHistS[NSys] = {"hUnfolded", "hUnfolded", "hUnfolded", "hUnfolded"};
 
   // general plot parameters
   const TString sTitle("");
@@ -55,40 +55,40 @@ void CalculateSystematicError() {
   const TString sNameA("hAverage");
   const TString sTitleX("p_{T}^{reco} = p_{T}^{jet} - #rhoA^{jet} [GeV/c]");
   const TString sTitleY("(1/N^{trg}) dN^{jet}/d(p_{T}^{reco} #eta^{jet}) [GeV/c]^{-1}");
-  const TString sLabelD("default [bayes., k = 4, embedding prior]");
-  const TString sLabelDS("default (statistical)");
+  const TString sLabelD("default [pythia 6]");
+  const TString sLabelDS("default [pythia 6]");
   const TString sLabelA("average");
-  const TString sLabelAS("average (statistical)");
+  const TString sLabelAS("average");
 
   // variation parameters
   const TString sTitleRD("var. / def.");
   const TString sTitleRA("var. / avg.");
-  const TString sNameV[NSys]  = {"hBinByBin", "hRegPlusOne"};
-  const TString sNameR[NSys]  = {"hRatioBinByBin", "hRatioRegPlusOne"};
-  const TString sLabelS[NSys] = {"bin-by-bin [embedding prior]", "k_{reg} + 1 [bayes., embedding prior]"};
-  const UInt_t  fColS[NSys]   = {808, 888};
-  const UInt_t  fFilS[NSys]   = {3345, 3354};
+  const TString sNameV[NSys]  = {"hVarPy8", "hVarLevy", "hVarPowM", "hVarPowP"};
+  const TString sNameR[NSys]  = {"hRatPy8", "hRatLevy", "hRatPowM", "hRatPowP"};
+  const TString sLabelS[NSys] = {"pythia 8", "levy [n = 5.8, t = 0.4]", "power [b = 2.1 - 0.2]", "power [b = 2.1 + 0.2]"};
+  const UInt_t  fColS[NSys]   = {810, 850, 870, 890};
+  const UInt_t  fFilS[NSys]   = {3305, 3325, 3345, 3395};
 
   // systematic parameters
-  const UInt_t  fColT(898);
+  const UInt_t  fColT(922);
   const UInt_t  fFilT(0);
   const TString sNameT("hTotal");
   const TString sNamePT("hPerTotal");
-  const TString sTitleP("percent error");
+  const TString sTitleP("fractional error");
   const TString sLabelT("total systematic");
-  const TString sNameS[NSys] = {"hBinByBinSys", "hRegPlusOneSys"};
-  const TString sNameP[NSys] = {"hBinByBinPer", "hRegPlusOnePer"};
+  const TString sNameS[NSys] = {"hSysPy8", "hSysLevy", "hSysPowM", "hSysPowP"};
+  const TString sNameP[NSys] = {"hPerPy8", "hPerLevy", "hPerPowM", "hPerPowP"};
 
   // subtraction parameters
-  const TString  sDefPi0("sysEffErrorCheck/pp200r9.noEffErrorsWithEmbed.et911vz55pi0.r02a005rm1chrg.p0m1k4n58t4.root");
-  const TString  sHistDefPi0("hUnfolded");
-  const TString  sInPi0[NSys]   = {"sysEffErrorCheck/pp200r9.noEffErrorsWithPythia.et911vz55pi0.r02a005rm1chrg.p0m1k4n58t4.root", "sysEffErrorCheck/pp200r9.noEffErrorsWithPythia.et911vz55pi0.r02a005rm1chrg.p0m1k4n58t4.root"};
-  const TString  sHistPi0[NSys] = {"hUnfolded", "hUnfolded"};
-  const Double_t gammaPurity(0.466597);
+  const TString  sDefPi0("");
+  const TString  sHistDefPi0("");
+  const TString  sInPi0[NSys]   = {"", "", "", ""};
+  const TString  sHistPi0[NSys] = {"", "", "", ""};
+  const Double_t gammaPurity(0.520270);
 
   // text parameters
   const TString sSys("pp-collisions, #sqrt{s} = 200 GeV");
-  const TString sTrg("#pi^{0} trigger, E_{T}^{trg} #in (9, 11) GeV");
+  const TString sTrg("#pi^{0} trigger, E_{T}^{trg} #in (11, 15) GeV");
   const TString sJet("anti-k_{T}, R = 0.2");
   const TString sTyp("#bf{charged jets}");
 
@@ -268,41 +268,56 @@ void CalculateSystematicError() {
   cout << "    Calculated average." << endl;
 
 
-  // calculate %-difference
-  TH1D *hDif[NSys];
+  // calculate ratio
+  TH1D *hDiv[NSys];
   for (UInt_t iSys = 0; iSys < NSys; iSys++) {
-    hDif[iSys] = (TH1D*) hDefault -> Clone();
-    hDif[iSys] -> SetName(sNameR[iSys].Data());
-    hDif[iSys] -> Reset("ICE");
+    hDiv[iSys] = (TH1D*) hDefault -> Clone();
+    hDiv[iSys] -> SetName(sNameR[iSys].Data());
+    hDiv[iSys] -> Reset("ICE");
 
-    const UInt_t nBinR = hDif[iSys] -> GetNbinsX();
+    const UInt_t nBinR = hDiv[iSys] -> GetNbinsX();
     for (UInt_t iBinR = 1; iBinR < (nBinR + 1); iBinR++) {
       const Double_t def  = hDefault   -> GetBinContent(iBinR);
       const Double_t avg  = hAverage   -> GetBinContent(iBinR);
-      const Double_t sys  = hVar[iSys] -> GetBinContent(iBinR);
-      const Double_t raw  = hVar[iSys] -> GetBinError(iBinR);
-      const Double_t rel  = (raw / sys);
-      const Double_t difD = (sys - def) / def;
-      const Double_t difA = (sys - avg) / avg;
+      const Double_t var  = hVar[iSys] -> GetBinContent(iBinR);
+      const Double_t rawD = hDefault   -> GetBinError(iBinR);
+      const Double_t rawA = hAverage   -> GetBinError(iBinR);
+      const Double_t rawV = hVar[iSys] -> GetBinError(iBinR);
+      const Double_t relD = (rawD / def);
+      const Double_t relA = (rawA / avg);
+      const Double_t relV = (rawV / var);
+      const Double_t divD = (var / def);
+      const Double_t divA = (var / avg);
 
-      Double_t dif = 0.;
-      if (UseAverage)
-        dif = difA;
-      else
-        dif = difD;
-
-      const Double_t val = 1. + dif;
-      const Double_t err = val * rel;
-      if ((def > 0.) && (sys > 0.)) {
-        hDif[iSys] -> SetBinContent(iBinR, val);
-        hDif[iSys] -> SetBinError(iBinR, err);
+      Double_t div = 0.;
+      Double_t rel = 0.;
+      if (UseAverage) {
+        div = divA;
+        rel = TMath::Sqrt(TMath::Abs((relV * relV) - (relA * relA)));
       }
       else {
-        hDif[iSys] -> SetBinContent(iBinR, 0.);
-        hDif[iSys] -> SetBinError(iBinR, 0.);
+        div = divD;
+        rel = TMath::Sqrt(TMath::Abs((relV * relV) - (relD * relD)));
+      }
+
+      // check for nan's
+      const Bool_t isGoodDef = ((TMath::Abs(def) > 0.) && !UseAverage);
+      const Bool_t isGoodAvg = ((TMath::Abs(avg) > 0.) && UseAverage);
+      const Bool_t isGoodVar = (TMath::Abs(var) > 0.);
+
+      // assign bin values
+      const Double_t val = div;
+      const Double_t err = val * rel;
+      if ((isGoodDef || isGoodAvg) && isGoodVar) {
+        hDiv[iSys] -> SetBinContent(iBinR, val);
+        hDiv[iSys] -> SetBinError(iBinR, err);
+      }
+      else {
+        hDiv[iSys] -> SetBinContent(iBinR, 0.);
+        hDiv[iSys] -> SetBinError(iBinR, 0.);
       }
     }  // end bin loop
-    hDif[iSys] -> GetXaxis() -> SetRangeUser(plotRange[0], plotRange[1]);
+    hDiv[iSys] -> GetXaxis() -> SetRangeUser(plotRange[0], plotRange[1]);
   }
   cout << "    Calculated difference." << endl;
 
@@ -388,11 +403,7 @@ void CalculateSystematicError() {
       hPer[NSys] -> SetBinError(iBin, 0.);
       hSys[iSys] -> SetBinError(iBin, sysErr);
       hSys[NSys] -> SetBinError(iBin, totErr);
-      cout << "CHECK: bin[" << iBin << "]\n"
-           << "       valDif = " << valDif << ", errDif = " << errDif << "\n"
-           << "       sysErr = " << sysErr << ", perErr = " << perErr << "\n"
-           << "       totErr = " << totErr << ", totPer = " << totPer
-           << endl;
+
     }  // end bin loop
   }  // end systematic loop
   cout << "    Calculated systematic uncertainties." << endl;
@@ -500,29 +511,29 @@ void CalculateSystematicError() {
     hVar[iSys] -> GetYaxis() -> SetLabelFont(fTxt);
     hVar[iSys] -> GetYaxis() -> SetLabelSize(fLab[1]);
     hVar[iSys] -> GetYaxis() -> CenterTitle(fCnt);
-    hDif[iSys] -> SetMarkerColor(fColS[iSys]);
-    hDif[iSys] -> SetMarkerStyle(fMarS);
-    hDif[iSys] -> SetFillColor(fColS[iSys]);
-    hDif[iSys] -> SetFillStyle(fFilS[iSys]);
-    hDif[iSys] -> SetLineColor(fColS[iSys]);
-    hDif[iSys] -> SetLineStyle(fLinS);
-    hDif[iSys] -> SetLineWidth(fWidS);
-    hDif[iSys] -> SetTitle(sTitle.Data());
-    hDif[iSys] -> SetTitleFont(fTxt);
-    hDif[iSys] -> GetXaxis() -> SetTitle(sTitleX.Data());
-    hDif[iSys] -> GetXaxis() -> SetTitleFont(fTxt);
-    hDif[iSys] -> GetXaxis() -> SetTitleSize(fTit[0]);
-    hDif[iSys] -> GetXaxis() -> SetTitleOffset(fOffX[0]);
-    hDif[iSys] -> GetXaxis() -> SetLabelFont(fTxt);
-    hDif[iSys] -> GetXaxis() -> SetLabelSize(fLab[0]);
-    hDif[iSys] -> GetXaxis() -> CenterTitle(fCnt);
-    hDif[iSys] -> GetYaxis() -> SetTitle(sTitleR.Data());
-    hDif[iSys] -> GetYaxis() -> SetTitleFont(fTxt);
-    hDif[iSys] -> GetYaxis() -> SetTitleSize(fTit[0]);
-    hDif[iSys] -> GetYaxis() -> SetTitleOffset(fOffY[0]);
-    hDif[iSys] -> GetYaxis() -> SetLabelFont(fTxt);
-    hDif[iSys] -> GetYaxis() -> SetLabelSize(fLab[0]);
-    hDif[iSys] -> GetYaxis() -> CenterTitle(fCnt);
+    hDiv[iSys] -> SetMarkerColor(fColS[iSys]);
+    hDiv[iSys] -> SetMarkerStyle(fMarS);
+    hDiv[iSys] -> SetFillColor(fColS[iSys]);
+    hDiv[iSys] -> SetFillStyle(fFilS[iSys]);
+    hDiv[iSys] -> SetLineColor(fColS[iSys]);
+    hDiv[iSys] -> SetLineStyle(fLinS);
+    hDiv[iSys] -> SetLineWidth(fWidS);
+    hDiv[iSys] -> SetTitle(sTitle.Data());
+    hDiv[iSys] -> SetTitleFont(fTxt);
+    hDiv[iSys] -> GetXaxis() -> SetTitle(sTitleX.Data());
+    hDiv[iSys] -> GetXaxis() -> SetTitleFont(fTxt);
+    hDiv[iSys] -> GetXaxis() -> SetTitleSize(fTit[0]);
+    hDiv[iSys] -> GetXaxis() -> SetTitleOffset(fOffX[0]);
+    hDiv[iSys] -> GetXaxis() -> SetLabelFont(fTxt);
+    hDiv[iSys] -> GetXaxis() -> SetLabelSize(fLab[0]);
+    hDiv[iSys] -> GetXaxis() -> CenterTitle(fCnt);
+    hDiv[iSys] -> GetYaxis() -> SetTitle(sTitleR.Data());
+    hDiv[iSys] -> GetYaxis() -> SetTitleFont(fTxt);
+    hDiv[iSys] -> GetYaxis() -> SetTitleSize(fTit[0]);
+    hDiv[iSys] -> GetYaxis() -> SetTitleOffset(fOffY[0]);
+    hDiv[iSys] -> GetYaxis() -> SetLabelFont(fTxt);
+    hDiv[iSys] -> GetYaxis() -> SetLabelSize(fLab[0]);
+    hDiv[iSys] -> GetYaxis() -> CenterTitle(fCnt);
     hSys[iSys] -> SetMarkerColor(fColS[iSys]);
     hSys[iSys] -> SetMarkerStyle(fMarS);
     hSys[iSys] -> SetFillColor(fColS[iSys]);
@@ -735,19 +746,19 @@ void CalculateSystematicError() {
   pPad1   -> Draw();
   pPad2   -> Draw();
   pPad1   -> cd();
-  hDif[0] -> Draw("E2");
+  hDiv[0] -> Draw("E2");
   for (UInt_t iSys = 1; iSys < NSys; iSys++) {
-    hDif[iSys] -> Draw("E2 SAME");
+    hDiv[iSys] -> Draw("E2 SAME");
   }
   line    -> Draw();
   pPad2   -> cd();
-  hVar[0] -> Draw("E2");
-  for (UInt_t iSys = 1; iSys < NSys; iSys++) {
-    hVar[iSys] -> Draw("E2 SAME");
-  }
-  hDefault -> Draw("E2 same");
+  hDefault -> Draw("E2");
   if (UseAverage)
     hAverage -> Draw("same");
+  hVar[0] -> Draw("P hist same");
+  for (UInt_t iSys = 1; iSys < NSys; iSys++) {
+    hVar[iSys] -> Draw("P hist same");
+  }
   lVar   -> Draw();
   txt    -> Draw();
   fOut   -> cd();
@@ -817,7 +828,7 @@ void CalculateSystematicError() {
   hAverage -> Write();
   for (UInt_t iSys = 0; iSys < NSys; iSys++) {
     hVar[iSys] -> Write();
-    hDif[iSys] -> Write();
+    hDiv[iSys] -> Write();
     hSys[iSys] -> Write();
     hPer[iSys] -> Write();
   }
