@@ -21,8 +21,8 @@ using namespace std;
 
 
 // global constants
-static const UInt_t NSys(4);
-static const UInt_t NBin(13);
+static const UInt_t NSys(2);
+static const UInt_t NBin(23);
 
 
 
@@ -33,13 +33,13 @@ void SumErrors() {
   cout << "\n  Summing errors..." << endl;
 
   // files
-  const TString sOut("summedSystematics.et911pt0215vz55pi0.r02a005rm1chrg.d26m9y2018.root");
-  const TString sStat("sysEt9pt0215/pp200r9.default.et911pt0215vz55pi0.r02a005rm1chrg.p0m1k4n58t4.root");
-  const TString sSys[NSys] = {"systematics.pythiaSys.et911pt0215vz55pi0.r02a005rm1chrg.d26m9y2018.root", "systematics.effSys.et911pt0215vz55pi0.r02a005rm1chrg.d26m9y2018.root", "systematics.methodSys.et911pt0215vz55pi0.r02a005rm1chrg.d26m9y2018.root", "systematics.priorSys.et911pt0215vz55pi0.r02a005rm1chrg.d26m9y2018.root"};
+  const TString sOut("summedSystematics.et911pt0230vz55pi0.r02a005rm1chrg.d16m11y2018.root");
+  const TString sStat("sysEt911r02/systematics.priorAndReg.et911vz55pt0230pi0.r02a005rm1chrg.d13m11y2018.root");
+  const TString sSys[NSys] = {"sysEt911r02/systematics.priorAndReg.et911vz55pt0230pi0.r02a005rm1chrg.d13m11y2018.root", "sysEt911r02/systematics.effAndRes.et911vz55pt0230pi0.r02a005rm1chrg.d13m11y2018.root"};
 
   // input histograms
-  const TString sHistStat("hUnfolded");
-  const TString sHistSys[NSys] = {"hTotal", "hTotal", "hTotal", "hTotal"};
+  const TString sHistStat("hDefault");
+  const TString sHistSys[NSys] = {"hTotal", "hTotal"};
 
 
   // open files
@@ -96,9 +96,16 @@ void SumErrors() {
   Double_t perTot2[NBin];
 
   const UInt_t iStart = hStat -> FindFirstBinAbove(0.);
+  const UInt_t iLast  = hStat -> FindLastBinAbove(0.);
+  const UInt_t iStop  = hStat -> GetNbinsX();
   for (UInt_t iBin = 0; iBin < NBin; iBin++) {
-    const Double_t val  = hStat -> GetBinContent(iBin + iStart);
-    const Double_t stat = hStat -> GetBinError(iBin + iStart);
+    const UInt_t iVal   = iBin + iStart;
+    const Bool_t isLast = (iVal > iLast);
+    const Bool_t isDone = (iVal > iStop);
+    if (isLast || isDone) break;
+
+    const Double_t val  = hStat -> GetBinContent(iVal);
+    const Double_t stat = hStat -> GetBinError(iVal);
     const Double_t per  = stat / val;
     valStat[iBin] = val;
     errStat[iBin] = stat;
@@ -116,11 +123,18 @@ void SumErrors() {
            << endl;
     }
     for (UInt_t iBin = 0; iBin < NBin; iBin++) {
+      const UInt_t iVal   = iBin + iStart;
+      const Bool_t isLast = (iVal > iLast);
+      const Bool_t isDone = (iVal > iStop);
+      if (isLast || isDone) break;
+
       const Double_t valAdd = hSys[iSys] -> GetBinContent(iBin + iStart);
       const Double_t sysAdd = hSys[iSys] -> GetBinError(iBin + iStart);
       const Double_t perAdd = sysAdd / valAdd;
-      perSys2[iBin] += perAdd * perAdd;
-      perTot2[iBin] += perAdd * perAdd;
+      if (valAdd > 0.) {
+        perSys2[iBin] += perAdd * perAdd;
+        perTot2[iBin] += perAdd * perAdd;
+      }
     }  // end bin loop
   }  // end systematic loop
   cout << "    Summed errors." << endl;
